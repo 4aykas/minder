@@ -1,7 +1,10 @@
 // Generates the Obsidian JSON Canvas for the TEBIN · Haskoning brainstorm from .input/brief.md.
 import { writeFileSync } from 'node:fs';
+import path from 'node:path';
 
-const OUT = 'C:/Users/maxudl/OneDrive - TEBIN/!_astro/minder/integration-map.canvas';
+const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+const REPO_ROOT = path.join(SCRIPT_DIR, '..');
+const OUT = process.env.CANVAS_OUT || path.join(REPO_ROOT, 'integration-map.canvas');
 
 const FLOW = {
   leads: '#2563EB',

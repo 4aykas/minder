@@ -7,9 +7,11 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
 const SCRATCH = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
-const SKILL = 'C:/Users/maxudl/.claude/skills/archify';
+const REPO_ROOT = path.join(SCRATCH, '..');
+// Path to a local checkout of the Archify Claude skill (not part of this repo).
+const SKILL = process.env.ARCHIFY_SKILL_PATH || path.join(process.env.USERPROFILE || process.env.HOME || '', '.claude/skills/archify');
 const JSON_OUT = path.join(SCRATCH, 'integration-map.architecture.json');
-const HTML_OUT = 'C:/Users/maxudl/OneDrive - TEBIN/!_astro/minder/integration-map.html';
+const HTML_OUT = process.env.ARCHIFY_HTML_OUT || path.join(REPO_ROOT, 'integration-map.html');
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
