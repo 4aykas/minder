@@ -74,9 +74,20 @@ both('e-pl-pl', 't-pl', 'h-pl', 'Joint entry into Polish work: TEBIN delivers �
 both('e-de-de', 't-de', 'h-de', 'German delivery capacity ⇄ shared leads', FLOW.leads);
 both('e-ch-ch', 't-ch', 'h-ch', 'Swiss contractor access ⇄ shared leads', FLOW.leads);
 
-// ── 3. Local certification model: one line through every market ────
-group('g-cert', 0, 1320, 2400, 360, 'Local certification model', FLOW.standards);
-text('cert-line', 40, 1390, 2320, 100, [
+// ── 3. Sectors: both sides active in the same three ─────────────────
+group('g-sectors', 0, 1260, 2400, 220, 'Sectors — both sides active');
+text('sectors-line', 40, 1330, 2320, 30, [
+  'Both TEBIN and Haskoning are active in the following sectors',
+]);
+[
+  ['mcf', '**MCF**'],
+  ['ib', '**Industry and Buildings**'],
+  ['av', '**Aviation**'],
+].forEach(([k, t], i) => text(`sector-${k}`, 40 + i * 790, 1380, 740, 80, [t]));
+
+// ── 4. Local certification model: one line through every market ────
+group('g-cert', 0, 1560, 2400, 360, 'Local certification model', FLOW.standards);
+text('cert-line', 40, 1630, 2320, 100, [
   '### TEBIN prepares the work  →  the local entity signs and carries the responsibility',
 ], FLOW.standards);
 [
@@ -85,12 +96,12 @@ text('cert-line', 40, 1390, 2320, 100, [
   ['pl', '**Poland**\nLocal party signs'],
   ['ch', '**Switzerland**\nLocal party signs'],
   ['other', '**Other markets**\nLocal party signs'],
-].forEach(([k, t, c], i) => text(`cert-${k}`, 40 + i * 470, 1530, 440, 120, [t], c));
+].forEach(([k, t, c], i) => text(`cert-${k}`, 40 + i * 470, 1770, 440, 120, [t], c));
 
-// ── 4. What moves across the network — mirrored rows ───────────────
-text('flows-head', 0, 1760, 2400, 80, ['## What moves across the network']);
-text('col-tebin', 0, 1860, 900, 60, ['### From TEBIN']);
-text('col-hask', 1500, 1860, 900, 60, ['### From Haskoning']);
+// ── 5. What moves across the network — mirrored rows ───────────────
+text('flows-head', 0, 2000, 2400, 80, ['## What moves across the network']);
+text('col-tebin', 0, 2100, 900, 60, ['### From TEBIN']);
+text('col-hask', 1500, 2100, 900, 60, ['### From Haskoning']);
 
 const flows = [
   ['leads', 'project opportunities, both ways',
@@ -110,14 +121,14 @@ const flows = [
     ['Training material and methodology', 'Established corporate processes']],
 ];
 flows.forEach(([k, label, left, right], i) => {
-  const y = 1950 + i * 230;
+  const y = 2190 + i * 230;
   text(`f-${k}-t`, 0, y, 900, 200, left.map((l) => `- ${l}`), FLOW[k]);
   text(`f-${k}-h`, 1500, y, 900, 200, right.map((l) => `- ${l}`), FLOW[k]);
   both(`e-f-${k}`, `f-${k}-t`, `f-${k}-h`, label, FLOW[k]);
 });
 
-// ── 5. What each side is looking for — equal weight ─────────────────
-text('want-tebin', 0, 3150, 1150, 320, [
+// ── 6. What each side is looking for — equal weight ─────────────────
+text('want-tebin', 0, 3390, 1150, 320, [
   '## TEBIN is looking for',
   '- **Joint entry into Polish work** with the Polish subsidiary or its partners — TEBIN delivers, the local side carries brand and signature',
   '- Training material and methodology',
@@ -125,7 +136,7 @@ text('want-tebin', 0, 3150, 1150, 320, [
   '- Mentoring from senior people',
   '- Shared leads across subsidiaries',
 ]);
-text('want-hask', 1250, 3150, 1150, 320, [
+text('want-hask', 1250, 3390, 1150, 320, [
   '## Haskoning is looking for',
   '- Discipline lead roles on projects',
   '- + add in the room',
@@ -133,33 +144,33 @@ text('want-hask', 1250, 3150, 1150, 320, [
   '- + add in the room',
 ]);
 
-// ── 6. Joint operating model ────────────────────────────────────────
-group('g-model', 0, 3550, 2400, 960, 'How a joint operating model can look');
-text('m-embedded', 40, 3630, 1000, 200, [
+// ── 7. Joint operating model ────────────────────────────────────────
+group('g-model', 0, 3790, 2400, 960, 'How a joint operating model can look');
+text('m-embedded', 40, 3870, 1000, 200, [
   '### Embedded in the client team',
   'Several German cases today — close to how group subsidiaries already work together',
 ]);
-text('m-ownership', 1360, 3630, 1000, 200, [
+text('m-ownership', 1360, 3870, 1000, 200, [
   '### Discipline ownership',
   'Full responsibility for a discipline package',
 ]);
 edges.push({ id: 'e-model', fromNode: 'm-embedded', fromSide: 'right', toNode: 'm-ownership', toSide: 'left', toEnd: 'arrow', label: 'direction of travel · depends on local signature', color: FLOW.standards });
 
-text('p-competencies', 40, 3870, 560, 300, [
+text('p-competencies', 40, 4110, 560, 300, [
   '### Competencies',
   'Disciplines · seniority · languages',
   'Roles and counts from the competency matrix',
 ], FLOW.people);
-text('p-development', 630, 3870, 560, 300, [
+text('p-development', 630, 4110, 560, 300, [
   '### Development',
   'Inbound: learning material, methodology, mentoring from senior people',
 ], FLOW.training);
-text('p-mobility', 1220, 3870, 560, 300, [
+text('p-mobility', 1220, 4110, 560, 300, [
   '### Mobility & certification',
   'Who can work formally in which market',
   'Decides which leads can actually be taken',
 ], FLOW.standards);
-text('p-language', 1810, 3870, 550, 300, [
+text('p-language', 1810, 4110, 550, 300, [
   '### Language',
   'English across project staff — level varies, room to improve',
   'No native Polish speakers · hiring in Poland within a year',
@@ -167,7 +178,7 @@ text('p-language', 1810, 3870, 550, 300, [
   'Exchange of experience, training, full-time allocation — not rotation between offices',
 ]);
 
-text('m-it', 40, 4210, 1140, 260, [
+text('m-it', 40, 4450, 1140, 260, [
   '### IT & security',
   '- No local servers: Microsoft 365 and Azure',
   '- Cloudflare at the edge · Zero Trust — access by identity, not network location',
@@ -175,7 +186,7 @@ text('m-it', 40, 4210, 1140, 260, [
   '- Tailscale mesh for distributed teams — under consideration',
   '- ISO 27001 in preparation',
 ]);
-text('m-roadmap', 1220, 4210, 1140, 260, [
+text('m-roadmap', 1220, 4450, 1140, 260, [
   '### Digital roadmap',
   '- MCP servers for Revit and CAD applications',
   '- Validators for document workflow and issued drawing packages',
@@ -183,8 +194,8 @@ text('m-roadmap', 1220, 4210, 1140, 260, [
 ]);
 both('e-roadmap', 'm-it', 'm-roadmap', 'short adoption cycle ⇄ corporate maturity', FLOW.training);
 
-// ── 7. Track record — TEBIN's own portfolio ─────────────────────────
-group('g-track', 0, 4590, 2400, 420, 'Track record — TEBIN\'s own portfolio');
+// ── 8. Track record — TEBIN's own portfolio ─────────────────────────
+group('g-track', 0, 4830, 2400, 420, 'Track record — TEBIN\'s own portfolio');
 [
   ['dc', ['### Data centres', 'Delivered: Africa, Netherlands', 'In progress: Germany, Switzerland']],
   ['de', ['### Germany', '- Residential portfolio, delivered independently', '- Standby and uninterruptible power incl. diesel generation — ongoing', '- DIS, HOAI LP3–LP5', '- Reconstruction']],
@@ -192,10 +203,10 @@ group('g-track', 0, 4590, 2400, 420, 'Track record — TEBIN\'s own portfolio');
   ['ch', ['### Switzerland', '- HVAC modernisation for an MSD contractor', '- Digital Twin for MEP']],
   ['pl', ['### Poland', '- Several projects delivered', '- No active projects at present', '- Full list to follow']],
   ['ua', ['### Ukraine', '- Active projects', '- Investment projects: design and process support for an international client entering the market']],
-].forEach(([k, t], i) => text(`r-${k}`, 40 + i * 391, 4670, 363, 310, t));
+].forEach(([k, t], i) => text(`r-${k}`, 40 + i * 391, 4910, 363, 310, t));
 
-// ── 8. Open questions — raised by TEBIN ─────────────────────────────
-group('g-open', 0, 5090, 2400, 300, 'Open questions — on the board because TEBIN raised them', '3');
+// ── 9. Open questions — raised by TEBIN ─────────────────────────────
+group('g-open', 0, 5330, 2400, 300, 'Open questions — on the board because TEBIN raised them', '3');
 [
   ['security', '### Security\nWhose access standards apply on joint projects?'],
   ['data', '### Data location\nWhere does project data live?'],
@@ -203,7 +214,7 @@ group('g-open', 0, 5090, 2400, 300, 'Open questions — on the board because TEB
   ['standards', '### Standards ownership\nWho owns the standards on a joint project?'],
   ['english', '### English level\nVaries across project staff — improvement planned'],
   ['polish', '### Polish speakers\nNone native yet — ambassadors needed'],
-].forEach(([k, t], i) => text(`q-${k}`, 40 + i * 391, 5170, 363, 190, [t]));
+].forEach(([k, t], i) => text(`q-${k}`, 40 + i * 391, 5410, 363, 190, [t]));
 
 // ── Off the board: working notes, kept outside the frame ────────────
 group('g-parking', 2600, 0, 760, 1380, 'OFF THE BOARD — check before anything moves left', '1');

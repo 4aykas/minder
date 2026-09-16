@@ -55,7 +55,19 @@ These govern every design and wording decision in the artifact.
 | Ukraine | TEBIN engineering base and legal entity; future reconstruction market |
 | Further countries | To be added `[confirm]` |
 
-## 4. What moves across the network
+## 4. Sectors / markets
+
+Both sides are active in the same three sectors. This is a second axis
+alongside geography — where the network touches by discipline, not by
+country.
+
+| Sector | TEBIN | Haskoning |
+|---|---|---|
+| MCF | active | active |
+| Industry and Buildings | active | active |
+| Aviation | active | active |
+
+## 5. What moves across the network
 
 Five flow types. Each gets its own colour in the artifact.
 
@@ -67,7 +79,7 @@ Five flow types. Each gets its own colour in the artifact.
 4. **Local engineering experience** — market knowledge, norms, client relations.
 5. **Training and know-how** — learning material, mentoring, process maturity.
 
-## 5. What TEBIN brings
+## 6. What TEBIN brings
 
 ### Delivery capability
 
@@ -112,7 +124,7 @@ Five flow types. Each gets its own colour in the artifact.
   at the perimeter and identity-based access.
 - ISO 9001 and ISO 19650 certified. ISO 27001 in preparation.
 
-## 6. What TEBIN wants from Haskoning
+## 7. What TEBIN wants from Haskoning
 
 - **Local legitimacy in Poland.** TEBIN has a Polish entity but almost no
   involvement in Polish projects. The ask is joint entry into Polish work
@@ -125,7 +137,7 @@ Five flow types. Each gets its own colour in the artifact.
 - **Mentoring.** Senior Haskoning people who can train TEBIN teams.
 - **Shared leads** across the group's subsidiaries.
 
-## 7. The local certification model
+## 8. The local certification model
 
 This is a structural fact that applies across every market and explains why the
 network works.
@@ -142,7 +154,7 @@ with local subsidiaries closes, and it makes the exchange model self-evident.
 The mirror case is Ukraine, where TEBIN holds the local legitimacy and the
 partner brings scale and methodology.
 
-## 8. Track record
+## 9. Track record
 
 Presented to make one point: TEBIN works with Haskoning among others, not only
 for Haskoning. The portfolio is TEBIN's own.
@@ -177,7 +189,7 @@ progress in Germany and Switzerland.
 - Investment projects where an international client entered the Ukrainian
   market and TEBIN provided design and process support.
 
-## 9. People
+## 10. People
 
 Three separate dimensions. They are often merged and should not be.
 
@@ -202,7 +214,7 @@ proper project integration rather than fragmented involvement.
 
 **Ownership.** Max and Ania hold the relationship on the TEBIN side.
 
-## 10. Delivery models
+## 11. Delivery models
 
 - **Embedded in the client team.** Several German cases where TEBIN works as
   part of the client's own team. This is close to how group subsidiaries
@@ -211,7 +223,7 @@ proper project integration rather than fragmented involvement.
   responsibility for a discipline package, which depends on the local
   certification question above.
 
-## 11. IT, security and infrastructure
+## 12. IT, security and infrastructure
 
 Presented as fact. The maturity speaks for itself and removes most security
 questions before they are asked.
@@ -225,7 +237,7 @@ Tone: Zero Trust is the common language, not a proposal. Haskoning has its own
 access standards. TEBIN's position is that it works in a zero trust model and
 adapts the tooling. Nothing is pushed as better.
 
-## 12. Digital roadmap
+## 13. Digital roadmap
 
 - MCP servers for Revit and CAD applications.
 - Validators for document workflow and for issued drawing packages.
@@ -235,7 +247,7 @@ adapts the tooling. Nothing is pushed as better.
 This is the bridge between TEBIN's short adoption cycle and Haskoning's
 corporate maturity.
 
-## 13. Not for the board
+## 14. Not for the board
 
 - Rates, margins, and any pricing.
 - Headcount economics.
@@ -245,7 +257,7 @@ corporate maturity.
 - The Ukrainian war context as a narrative. It stays as structural fact: two
   legal entities, engineering base in Ukraine, active Ukrainian projects.
 
-## 14. Open items
+## 15. Open items
 
 - Full list of Polish projects.
 - Confirmation of partner and client names marked `[confirm]`.
