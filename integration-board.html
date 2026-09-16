@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TEBIN and Haskoning board</title>
+<script>
+  (function () {
+    var t = null;
+    try { t = new URLSearchParams(location.search).get('theme'); } catch (_) {}
+    if (t !== 'dark' && t !== 'light') { try { t = localStorage.getItem('board-theme'); } catch (_) {} }
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+  })();
+</script>
+<style>
+  :root, [data-theme="light"] {
+    --paper: #FCFBF8;
+    --dots: #DEDAD0;
+    --ink: #292929;
+    --muted: #5E5E5E;
+    --pill: #FCFBF8;
+    --tebin: #DA291C;
+    --tebin-ink: #C7251A;
+    --tebin-zone: rgba(218, 41, 28, 0.045);
+    --tebin-tint: #FBECE9;
+    --hask: #002E4F;
+    --hask-ink: #002E4F;
+    --hask-zone: rgba(0, 46, 79, 0.045);
+    --hask-tint: #E7F2F6;
+    --hub: #FFFDF8;
+    --people-tint: #FFF0D2;
+    --model-tint: #E4F1DF;
+    --digital-tint: #DFF1F3;
+    --record-tint: #FBE6E1;
+    --want-tint: #FFE3A8;
+    --question: #FCB073;
+    --question-ink: #292929;
+    --leads: #009EAB;
+    --people: #D98A0B;
+    --standards: #206087;
+    --local: #3F8F5A;
+    --training: #8C7560;
+    --depends: #8C8C8C;
+    --chrome-bg: rgba(252, 251, 248, 0.92);
+    --chrome-border: #D9D5CA;
+    --chrome-active: #292929;
+    --chrome-active-ink: #FCFBF8;
+  }
+  [data-theme="dark"] {
+    --paper: #16191F;
+    --dots: #2A2F38;
+    --ink: #EDEDEA;
+    --muted: #B4B6BA;
+    --pill: #1D2128;
+    --tebin: #EA6359;
+    --tebin-ink: #EA6359;
+    --tebin-zone: rgba(234, 99, 89, 0.07);
+    --tebin-tint: #33222A;
+    --hask: #84C3D3;
+    --hask-ink: #84C3D3;
+    --hask-zone: rgba(132, 195, 211, 0.07);
+    --hask-tint: #1B2C36;
+    --hub: #1D2128;
+    --people-tint: #362C19;
+    --model-tint: #1D3024;
+    --digital-tint: #16302F;
+    --record-tint: #36262A;
+    --want-tint: #3D3418;
+    --question: #7A4F24;
+    --question-ink: #F4EDE3;
+    --leads: #2BB8C4;
+    --people: #F0B429;
+    --standards: #8FB8DE;
+    --local: #5FCF8E;
+    --training: #C7B093;
+    --depends: #8A8F98;
+    --chrome-bg: rgba(29, 33, 40, 0.92);
+    --chrome-border: #353B46;
+    --chrome-active: #EDEDEA;
+    --chrome-active-ink: #16191F;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    touch-action: none;
+  }
+  #board { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; cursor: grab; }
+  #board.dragging { cursor: grabbing; }
+  #board text { font-family: inherit; }
+
+  /* ── SVG classes ── */
+  .zone-tebin { fill: var(--tebin-zone); stroke: var(--tebin); }
+  .zone-hask { fill: var(--hask-zone); stroke: var(--hask); }
+  .fill-ink { fill: var(--ink); }
+  .fill-muted { fill: var(--muted); }
+  .fill-tebin { fill: var(--tebin-ink); }
+  .fill-hask { fill: var(--hask-ink); }
+  .fill-question-ink { fill: var(--question-ink); }
+
+  .box { stroke-width: 4; }
+  .box-tebin { fill: var(--tebin-tint); stroke: var(--tebin); }
+  .box-hask { fill: var(--hask-tint); stroke: var(--hask); }
+  .box-people { fill: var(--people-tint); stroke: var(--people); }
+  .box-model { fill: var(--model-tint); stroke: var(--local); }
+  .box-digital { fill: var(--digital-tint); stroke: var(--leads); }
+  .box-record { fill: var(--record-tint); stroke: var(--tebin); stroke-opacity: 0.45; }
+  .box-want { fill: var(--want-tint); stroke: none; }
+  .box-ghost { fill: none; stroke: var(--hask); stroke-dasharray: 18 14; }
+  .box-question { fill: var(--question); stroke: none; }
+  .title-people { fill: var(--people); }
+  .title-model { fill: var(--local); }
+  .title-digital { fill: var(--leads); }
+  [data-theme="light"] .title-people { fill: #8A5300; }
+  [data-theme="light"] .title-model { fill: #2F6B43; }
+  [data-theme="light"] .title-digital { fill: #007C86; }
+
+  .hub-face { fill: var(--hub); }
+  .ring-tebin { fill: none; stroke: var(--tebin); }
+  .ring-hask { fill: none; stroke: var(--hask); }
+  .halo-tebin { fill: none; stroke: var(--tebin); stroke-dasharray: 6 22; stroke-linecap: round; opacity: 0.6; }
+  .halo-hask { fill: none; stroke: var(--hask); stroke-dasharray: 6 22; stroke-linecap: round; opacity: 0.6; }
+
+  .band { fill: var(--standards); }
+  .band-stop { fill: var(--paper); stroke: var(--standards); stroke-width: 10; }
+  .band-stop-tebin { fill: var(--tebin); stroke: var(--paper); stroke-width: 10; }
+  .band-leader { stroke: var(--standards); stroke-width: 4; stroke-dasharray: 4 10; stroke-linecap: round; }
+
+  .edge { transition: opacity 0.25s ease; }
+  .edge path.halo { fill: none; stroke-width: 30; opacity: 0.16; stroke-linecap: round; }
+  .edge path.line { fill: none; stroke-width: 10; stroke-linecap: round; }
+  .edge.dep path.line { stroke-width: 6; stroke-dasharray: 20 16; }
+  .edge.tether path.line { stroke-width: 4; stroke-dasharray: 2 14; stroke: var(--question); }
+  .edge .pill { fill: var(--pill); stroke-width: 4; }
+  .edge .pill-text { fill: var(--ink); font-weight: 600; }
+${''}
+  .f-leads path { stroke: var(--leads); } .f-leads .pill { stroke: var(--leads); } .m-leads { fill: var(--leads); }
+  .f-people path { stroke: var(--people); } .f-people .pill { stroke: var(--people); } .m-people { fill: var(--people); }
+  .f-standards path { stroke: var(--standards); } .f-standards .pill { stroke: var(--standards); } .m-standards { fill: var(--standards); }
+  .f-local path { stroke: var(--local); } .f-local .pill { stroke: var(--local); } .m-local { fill: var(--local); }
+  .f-training path { stroke: var(--training); } .f-training .pill { stroke: var(--training); } .m-training { fill: var(--training); }
+  .f-depends path { stroke: var(--depends); } .f-depends .pill { stroke: var(--depends); } .m-depends { fill: var(--depends); }
+
+  .node { cursor: pointer; transition: opacity 0.25s ease; }
+  #board.focus .edge { opacity: 0.08; }
+  #board.focus .edge.on { opacity: 1; }
+  #board.focus .node { opacity: 0.35; }
+  #board.focus .node.on { opacity: 1; }
+
+  /* ── Chrome ── */
+  .chrome {
+    position: fixed;
+    background: var(--chrome-bg);
+    border: 1px solid var(--chrome-border);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--ink);
+    font-size: 14px;
+    z-index: 10;
+  }
+  .chrome button {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 9px;
+    padding: 8px 12px;
+    min-height: 36px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .chrome button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .chrome button:focus-visible { outline: 3px solid var(--leads); outline-offset: 2px; }
+  .chrome button[aria-pressed="true"], .chrome button.active { background: var(--chrome-active); color: var(--chrome-active-ink); }
+
+  #tools { top: calc(14px + env(safe-area-inset-top, 0px)); right: 14px; display: flex; gap: 2px; padding: 4px; }
+  #chapters {
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    max-width: calc(100vw - 28px);
+    overflow-x: auto;
+  }
+  #chapters button { white-space: nowrap; }
+  #chapters kbd { font: inherit; font-size: 11px; opacity: 0.55; margin-right: 6px; }
+  #legend {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 14px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  #legend button { display: flex; align-items: center; gap: 10px; text-align: left; }
+  #legend .swatch { width: 30px; height: 8px; border-radius: 4px; flex: none; }
+  #legend .swatch.dashed { height: 0; border-top: 4px dashed var(--depends); border-radius: 0; }
+  #legend .swatch.sticky { height: 16px; width: 16px; margin: 0 7px; border-radius: 3px; background: var(--question); transform: rotate(-6deg); }
+  #legend .hint { color: var(--muted); font-size: 12px; padding: 6px 12px 4px; max-width: 230px; line-height: 1.35; }
+
+  @media (max-width: 760px) {
+    #legend { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .edge, .node { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <svg id="board" role="img" aria-label="TEBIN and Haskoning network board">
+    <defs id="defs"></defs>
+    <rect id="sheet" x="-4000" y="-4000" width="15400" height="13700" fill="url(#dotgrid)"/>
+    <g id="world"></g>
+  </svg>
+
+  <div id="legend" class="chrome" aria-label="Flows">
+    <button type="button" data-flow="leads"><span class="swatch" style="background:var(--leads)"></span>Leads</button>
+    <button type="button" data-flow="people"><span class="swatch" style="background:var(--people)"></span>People and competencies</button>
+    <button type="button" data-flow="standards"><span class="swatch" style="background:var(--standards)"></span>Standards and certification</button>
+    <button type="button" data-flow="local"><span class="swatch" style="background:var(--local)"></span>Local engineering experience</button>
+    <button type="button" data-flow="training"><span class="swatch" style="background:var(--training)"></span>Training and know-how</button>
+    <button type="button" data-flow="depends"><span class="swatch dashed"></span>Depends on</button>
+    <button type="button" data-flow="tether"><span class="swatch sticky"></span>Open question</button>
+    <p class="hint">Click a flow or a block to follow its lines. Esc clears.</p>
+  </div>
+
+  <div id="tools" class="chrome" role="toolbar" aria-label="View">
+    <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+    <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+    <button type="button" id="fit">Fit</button>
+    <button type="button" id="legend-toggle" aria-pressed="true" aria-controls="legend">Legend</button>
+    <button type="button" id="theme" aria-label="Toggle theme">Dark</button>
+    <button type="button" id="full" aria-label="Full screen">Full screen</button>
+  </div>
+
+  <nav id="chapters" class="chrome" aria-label="Chapters"></nav>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var WORLD = { x: 0, y: 0, w: 7400, h: 5750 };
+  var CHAR = 0.52; // average advance of the UI face, in em
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function wrap(text, size, width) {
+    var max = Math.max(8, Math.floor(width / (size * CHAR)));
+    var words = String(text).split(' ');
+    var lines = [];
+    var line = '';
+    words.forEach(function (w) {
+      if (!line) line = w;
+      else if ((line + ' ' + w).length <= max) line += ' ' + w;
+      else { lines.push(line); line = w; }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  // ── Content ───────────────────────────────────────────────────────
+  var nodes = {};
+  var out = { zones: [], nodes: [], edges: [], labels: [] };
+
+  function textBlock(x, y, lines, size, cls, opts) {
+    opts = opts || {};
+    var lh = size * (opts.lh || 1.3);
+    var anchor = opts.anchor || 'start';
+    var weight = opts.weight ? ' font-weight="' + opts.weight + '"' : '';
+    var style = opts.italic ? ' font-style="italic"' : '';
+    var svg = lines.map(function (l, i) {
+      return '<text x="' + x + '" y="' + (y + i * lh) + '" font-size="' + size + '" class="' + cls + '" text-anchor="' + anchor + '"' + weight + style + '>' + esc(l) + '</text>';
+    }).join('');
+    return { svg: svg, height: lines.length * lh };
+  }
+
+  // Box island: title + items, height from content
+  function measureBox(o) {
+    var pad = o.pad || 44;
+    var inner = o.w - pad * 2;
+    var titleLines = wrap(o.title, o.titleSize || 56, inner);
+    var h = pad + titleLines.length * (o.titleSize || 56) * 1.12 + 18;
+    var items = (o.items || []).map(function (it) {
+      var ls = wrap(it, o.size || 34, inner - 26);
+      h += ls.length * (o.size || 34) * 1.32 + 12;
+      return ls;
+    });
+    return { titleLines: titleLines, items: items, h: Math.max(o.minH || 0, h + pad - 12) };
+  }
+  function box(id, o) {
+    var m = measureBox(o);
+    var pad = o.pad || 44;
+    var tSize = o.titleSize || 56;
+    var size = o.size || 34;
+    var h = o.h || m.h;
+    var rot = o.rot ? ' transform="rotate(' + o.rot + ' ' + (o.x + o.w / 2) + ' ' + (o.y + h / 2) + ')"' : '';
+    var s = '<g class="node" data-id="' + id + '"' + rot + '>';
+    s += '<rect class="box ' + o.cls + '" x="' + o.x + '" y="' + o.y + '" width="' + o.w + '" height="' + h + '" rx="' + (o.rx || 40) + '"/>';
+    var y = o.y + pad + tSize * 0.85;
+    var t = textBlock(o.x + pad, y, m.titleLines, tSize, o.titleCls || 'fill-ink', { weight: 750, lh: 1.12 });
+    s += t.svg;
+    y += t.height + 18 - tSize * 0.1;
+    m.items.forEach(function (ls, i) {
+      var raw = o.items[i];
+      var placeholder = raw.indexOf('+ ') === 0;
+      if (!placeholder && o.bullets !== false) {
+        s += '<circle cx="' + (o.x + pad + 7) + '" cy="' + (y + size * 0.05 - size * 0.32) + '" r="6" class="' + (o.bulletCls || 'fill-muted') + '"/>';
+      }
+      var tb = textBlock(o.x + pad + (o.bullets === false ? 0 : 26), y + size * 0.05, ls, size, placeholder ? 'fill-muted' : (o.itemCls || 'fill-ink'), { lh: 1.32, italic: placeholder, weight: o.itemWeight });
+      s += tb.svg;
+      y += tb.height + 12;
+    });
+    s += '</g>';
+    out.nodes.push(s);
+    nodes[id] = { kind: 'rect', x: o.x, y: o.y, w: o.w, h: h, cx: o.x + o.w / 2, cy: o.y + h / 2 };
+    return nodes[id];
+  }
+
+  // Hub: circle, shared hubs get a two-colour ring
+  function hub(id, o) {
+    var s = '<g class="node" data-id="' + id + '">';
+    if (o.halo) {
+      s += '<circle class="halo-tebin" cx="' + o.x + '" cy="' + o.y + '" r="' + (o.r + 70) + '" stroke-width="10"/>';
+      s += '<circle class="halo-hask" cx="' + o.x + '" cy="' + o.y + '" r="' + (o.r + 130) + '" stroke-width="10"/>';
+    }
+    s += '<circle class="hub-face" cx="' + o.x + '" cy="' + o.y + '" r="' + o.r + '"/>';
+    if (o.side === 'shared') {
+      s += '<path class="ring-tebin" stroke-width="16" d="M ' + o.x + ' ' + (o.y - o.r) + ' A ' + o.r + ' ' + o.r + ' 0 0 0 ' + o.x + ' ' + (o.y + o.r) + '"/>';
+      s += '<path class="ring-hask" stroke-width="16" d="M ' + o.x + ' ' + (o.y - o.r) + ' A ' + o.r + ' ' + o.r + ' 0 0 1 ' + o.x + ' ' + (o.y + o.r) + '"/>';
+    } else {
+      s += '<circle class="ring-' + o.side + '" stroke-width="16" cx="' + o.x + '" cy="' + o.y + '" r="' + o.r + '"/>';
+    }
+    var width = o.r * 1.55;
+    var blocks = [];
+    blocks.push({ lines: wrap(o.title, o.titleSize || 66, width), size: o.titleSize || 66, cls: o.side === 'hask' ? 'fill-hask' : o.side === 'tebin' ? 'fill-tebin' : 'fill-ink', weight: 800, gap: 14 });
+    if (o.headline) blocks.push({ lines: wrap(o.headline, 46, width), size: 46, cls: 'fill-ink', weight: 700, gap: 12 });
+    (o.items || []).forEach(function (it) { blocks.push({ lines: wrap(it, o.size || 33, width), size: o.size || 33, cls: 'fill-muted', gap: 6 }); });
+    var total = blocks.reduce(function (a, b) { return a + b.lines.length * b.size * 1.2 + b.gap; }, 0);
+    var y = o.y - total / 2 + blocks[0].size * 0.85;
+    blocks.forEach(function (b) {
+      var tb = textBlock(o.x, y, b.lines, b.size, b.cls, { anchor: 'middle', weight: b.weight, lh: 1.2 });
+      s += tb.svg;
+      y += tb.height + b.gap;
+    });
+    s += '</g>';
+    out.nodes.push(s);
+    nodes[id] = { kind: 'circle', cx: o.x, cy: o.y, r: o.r + (o.halo ? 60 : 0) };
+  }
+
+  // Smooth organic closed shape through points around an ellipse
+  function blob(cx, cy, rx, ry, radii, cls, rotSeed) {
+    var n = radii.length;
+    var pts = radii.map(function (k, i) {
+      var a = (i / n) * Math.PI * 2 + rotSeed;
+      return [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k];
+    });
+    var d = '';
+    for (var i = 0; i < n; i++) {
+      var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      if (i === 0) d += 'M ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
+      var c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+      var c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ' C ' + c1[0].toFixed(1) + ' ' + c1[1].toFixed(1) + ', ' + c2[0].toFixed(1) + ' ' + c2[1].toFixed(1) + ', ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+    }
+    out.zones.push('<path class="' + cls + '" d="' + d + ' Z" stroke-width="7" stroke-dasharray="26 18"/>');
+  }
+
+  // ── Title ──
+  out.zones.push('<text x="300" y="330" font-size="170" font-weight="800" class="fill-ink">TEBIN and Haskoning</text>');
+  out.zones.push('<text x="306" y="440" font-size="62" font-weight="500" class="fill-muted">Where the two networks meet</text>');
+
+  // ── Territories ──
+  blob(1330, 2000, 1180, 1330, [1, 1.05, 0.97, 1.08, 1.02, 0.95, 1.06, 1.0, 0.93, 1.04, 1.07, 0.98], 'zone-tebin', 0.2);
+  blob(6070, 2000, 1180, 1330, [1.03, 0.96, 1.06, 1.0, 0.94, 1.07, 1.01, 0.97, 1.05, 0.95, 1.04, 1.0], 'zone-hask', 1.1);
+  out.zones.push('<text x="360" y="930" font-size="230" font-weight="800" class="fill-tebin">TEBIN</text>');
+  out.zones.push('<text x="5040" y="930" font-size="230" font-weight="800" class="fill-hask">Haskoning</text>');
+
+  // ── TEBIN side ──
+  box('t-cap', { x: 360, y: 1180, w: 780, cls: 'box-tebin', titleCls: 'fill-tebin', title: 'Delivery capability', items: [
+    'About 70 people, 15–20 of them in Poland and growing to year end',
+    'Engineering strength in MEP, where demand is highest',
+    'MEP discipline leads and project managers who can lead a discipline',
+    'Advanced BIM coordinators',
+    'English across project staff, with room to improve'
+  ] });
+  box('t-mkt', { x: 1360, y: 1020, w: 720, cls: 'box-tebin', titleCls: 'fill-tebin', title: 'Markets and access', items: [
+    'Germany is an active main market',
+    'Direct access to Swiss contractors',
+    'Deep roots in the Ukrainian market',
+    'Brought an international investor into Ukraine: design and supporting processes'
+  ] });
+  hub('t-ua', { x: 1680, y: 2060, r: 215, side: 'tebin', title: 'Ukraine', items: ['Engineering base and legal entity', 'Local signing authority', 'Active projects'] });
+  box('t-tech', { x: 360, y: 2470, w: 800, cls: 'box-tebin', titleCls: 'fill-tebin', title: 'Technical depth', items: [
+    'BIM coordination and CDE work in Dalux and client platforms',
+    'Revit automation: scripts, plugins, families, as internal support tools',
+    'MEP calculation across disciplines, including LiNear',
+    'Digital Twin delivery',
+    'As-built laser scanning with a Polish partner'
+  ] });
+  box('t-way', { x: 1440, y: 2560, w: 780, cls: 'box-tebin', titleCls: 'fill-tebin', title: 'Ways of working', items: [
+    'Agile and Scrum in practice',
+    'Short adoption cycle for new IT frameworks',
+    'ISO 9001 and ISO 19650 certified',
+    'ISO 27001 in preparation'
+  ] });
+
+  // ── Haskoning side ──
+  box('h-leads', { x: 5120, y: 1040, w: 700, cls: 'box-hask', titleCls: 'fill-hask', title: 'Shared leads', items: [
+    'Leads shared across the group’s subsidiaries',
+    'Polish opportunities for joint entry'
+  ] });
+  box('h-train', { x: 6130, y: 1260, w: 780, cls: 'box-hask', titleCls: 'fill-hask', title: 'Training and methodology', items: [
+    'Strong learning resources',
+    'Methodology and quality frameworks'
+  ] });
+  hub('h-nl', { x: 5760, y: 2060, r: 215, side: 'hask', title: 'Netherlands', items: ['Group centre', 'Subsidiaries in several countries'] });
+  hub('h-more-countries', { x: 6760, y: 2010, r: 135, side: 'hask', title: 'Further countries', titleSize: 38, items: ['add in the room'] });
+  box('h-proc', { x: 6180, y: 2400, w: 720, cls: 'box-hask', titleCls: 'fill-hask', title: 'Process maturity', items: [
+    'Established corporate processes worth learning'
+  ] });
+  box('h-ment', { x: 5080, y: 2960, w: 700, cls: 'box-hask', titleCls: 'fill-hask', title: 'Senior mentors', items: [
+    'Senior people who can train TEBIN teams'
+  ] });
+  box('h-add', { x: 6040, y: 2890, w: 760, cls: 'box-ghost', titleCls: 'fill-hask', title: 'What else Haskoning brings', items: ['+ add in the room', '+ add in the room'] });
+
+  // ── Shared markets ──
+  hub('s-de', { x: 3700, y: 1260, r: 205, side: 'shared', title: 'Germany', items: ['TEBIN’s main delivery market', 'Haskoning presence'] });
+  hub('s-pl', { x: 3700, y: 2210, r: 300, side: 'shared', halo: true, title: 'Poland', titleSize: 80, headline: 'Joint entry into Polish work', items: ['TEBIN delivers. The local side carries brand and signature.'] });
+  hub('s-ch', { x: 3700, y: 3170, r: 195, side: 'shared', title: 'Switzerland', titleSize: 58, items: ['Haskoning subsidiary', 'TEBIN has direct project access'] });
+
+  // ── What each side is looking for ──
+  var wantT = { x: 2440, y: 250, w: 1060, cls: 'box-want', title: 'TEBIN is looking for', titleSize: 50, size: 32, rot: -1.2, items: [
+    'Joint entry into Polish work',
+    'Training material and methodology',
+    'Process maturity',
+    'Mentoring from senior people',
+    'Shared leads across subsidiaries'
+  ] };
+  var wantH = { x: 3900, y: 250, w: 1060, cls: 'box-want', title: 'Haskoning is looking for', titleSize: 50, size: 32, rot: 1.2, items: [
+    'Discipline lead roles on projects',
+    '+ add in the room',
+    '+ add in the room',
+    '+ add in the room',
+    '+ add in the room'
+  ] };
+  var wantH_ = Math.max(measureBox(wantT).h, measureBox(wantH).h);
+  wantT.h = wantH_; wantH.h = wantH_;
+  box('w-t', wantT);
+  box('w-h', wantH);
+
+  // ── People and operating model ──
+  out.zones.push('<text x="2330" y="3560" font-size="96" font-weight="800" class="title-people">People</text>');
+  out.zones.push('<text x="5280" y="3560" font-size="96" font-weight="800" class="title-model">Operating model</text>');
+  box('p-comp', { x: 2330, y: 3640, w: 720, cls: 'box-people', titleCls: 'title-people', bulletCls: 'title-people', title: 'Competencies', items: [
+    'Disciplines, seniority, languages',
+    'Roles and counts from the competency matrix'
+  ] });
+  box('p-dev', { x: 3330, y: 3700, w: 720, cls: 'box-people', titleCls: 'title-people', bulletCls: 'title-people', title: 'Development', items: [
+    'The inbound flow: learning material, methodology, mentoring'
+  ] });
+  box('p-mob', { x: 4330, y: 3640, w: 780, cls: 'box-people', titleCls: 'title-people', bulletCls: 'title-people', title: 'Mobility and certification', items: [
+    'Who can work formally in which market',
+    'Decides which leads can actually be taken'
+  ] });
+  box('p-coop', { x: 3330, y: 4080, w: 720, cls: 'box-people', titleCls: 'title-people', bulletCls: 'title-people', title: 'How we cooperate', items: [
+    'Exchange of experience and training',
+    'Full-time allocation to projects, not rotation between offices'
+  ] });
+  box('m-emb', { x: 5280, y: 3640, w: 780, cls: 'box-model', titleCls: 'title-model', bulletCls: 'title-model', title: 'Embedded in the client team', items: [
+    'Several German cases today',
+    'Close to how group subsidiaries already work together'
+  ] });
+  box('m-own', { x: 6340, y: 3780, w: 760, cls: 'box-model', titleCls: 'title-model', bulletCls: 'title-model', title: 'Discipline ownership', items: [
+    'Full responsibility for a discipline package',
+    'The direction TEBIN wants to move toward'
+  ] });
+
+  // ── Digital ──
+  box('x-it', { x: 300, y: 3560, w: 920, cls: 'box-digital', titleCls: 'title-digital', bulletCls: 'title-digital', title: 'IT and security', items: [
+    'No local servers: Microsoft 365 and Azure',
+    'Cloudflare at the edge',
+    'Zero Trust: access by identity, not network location',
+    'Works inside a partner’s access standards and adapts the tooling',
+    'Tailscale mesh for distributed teams, under consideration'
+  ] });
+  box('x-road', { x: 1340, y: 3700, w: 840, cls: 'box-digital', titleCls: 'title-digital', bulletCls: 'title-digital', title: 'Digital roadmap', items: [
+    'MCP servers for Revit and CAD',
+    'Validators for document workflow and issued drawing packages',
+    'ISO 19650 validation and ISO 9001 quality control'
+  ] });
+
+  // ── One line through every market ──
+  var BAND_Y = 4760;
+  out.zones.push('<text x="300" y="4560" font-size="120" font-weight="800" class="fill-ink">One line through every market</text>');
+  out.zones.push('<text x="306" y="4650" font-size="50" font-weight="500" class="fill-muted">TEBIN prepares the work. The local entity signs and carries the responsibility.</text>');
+  var bandSvg = '<g class="node" data-id="band"><rect class="band" x="300" y="' + BAND_Y + '" width="6800" height="56" rx="28"/>';
+  [
+    { x: 1680, name: 'Ukraine', text: 'TEBIN signs, partner brings scale and methodology', tebin: true },
+    { x: 3000, name: 'Germany', text: 'Local party signs' },
+    { x: 3700, name: 'Poland', text: 'Local party signs' },
+    { x: 4400, name: 'Switzerland', text: 'Local party signs' },
+    { x: 5760, name: 'Netherlands', text: 'Local party signs' },
+    { x: 6700, name: 'Other markets', text: 'Local party signs' }
+  ].forEach(function (s) {
+    bandSvg += '<circle class="' + (s.tebin ? 'band-stop-tebin' : 'band-stop') + '" cx="' + s.x + '" cy="' + (BAND_Y + 28) + '" r="40"/>';
+    bandSvg += '<text x="' + s.x + '" y="' + (BAND_Y + 130) + '" font-size="46" font-weight="750" text-anchor="middle" class="' + (s.tebin ? 'fill-tebin' : 'fill-ink') + '">' + esc(s.name) + '</text>';
+    wrap(s.text, 30, 520).forEach(function (l, i) {
+      bandSvg += '<text x="' + s.x + '" y="' + (BAND_Y + 178 + i * 38) + '" font-size="30" text-anchor="middle" class="fill-muted">' + esc(l) + '</text>';
+    });
+  });
+  bandSvg += '</g>';
+  out.nodes.push(bandSvg);
+  nodes.band = { kind: 'rect', x: 300, y: BAND_Y, w: 6800, h: 56, cx: 3700, cy: BAND_Y + 28 };
+
+  // ── Track record ──
+  out.zones.push('<text x="300" y="5210" font-size="120" font-weight="800" class="fill-ink">TEBIN’s own track record</text>');
+  var records = [
+    ['Data centres', ['Delivered in Africa and the Netherlands', 'In progress in Germany and Switzerland']],
+    ['Germany', ['Residential portfolio, delivered independently', 'Standby and uninterruptible power, including diesel generation', 'DIS across HOAI LP3, LP4, LP5', 'Reconstruction projects']],
+    ['As-built and scanning', ['Laser scanning with a Polish partner', 'Current: Amazon facility in Rostock', 'Reconstruction and document recovery for operating assets']],
+    ['Switzerland', ['HVAC modernisation for an MSD contractor', 'Digital Twin for MEP']],
+    ['Poland', ['Several projects delivered', 'No active Polish projects at present', 'Full list to follow']],
+    ['Ukraine', ['Active projects', 'Design and process support for an international client entering the market']]
+  ];
+  var recH = Math.max.apply(null, records.map(function (r) { return measureBox({ w: 1080, title: r[0], items: r[1], titleSize: 52, size: 34 }).h; }));
+  records.forEach(function (r, i) {
+    box('r-' + i, { x: 300 + i * 1144, y: 5290, w: 1080, h: recH, cls: 'box-record', titleCls: 'fill-tebin', title: r[0], titleSize: 52, size: 34, items: r[1] });
+  });
+  WORLD.h = 5290 + recH + 160;
+
+  // ── Open questions, stuck next to what they are about ──
+  function question(id, x, y, rot, text, w) {
+    box(id, { x: x, y: y, w: w || 500, cls: 'box-question', titleCls: 'fill-question-ink', itemCls: 'fill-question-ink', title: 'Open question', titleSize: 34, size: 36, itemWeight: 700, bullets: false, rot: rot, rx: 10, pad: 34, items: [text] });
+  }
+  question('q-eng', 300, 2010, -3, 'English level across project staff');
+  question('q-sec', 220, 3230, 2.5, 'Whose access standards apply?');
+  question('q-data', 820, 3260, -2, 'Where does project data live?');
+  question('q-lic', 6760, 760, 3, 'Which licences overlap?');
+  question('q-pl', 4150, 2290, -3.5, 'Polish speakers: none native yet', 470);
+  question('q-std', 5240, 4190, 2, 'Who owns the standards?');
+
+  // ── Edges ──
+  function clip(n, dx, dy, pad) {
+    var len = Math.hypot(dx, dy) || 1;
+    var ux = dx / len, uy = dy / len;
+    var t;
+    if (n.kind === 'circle') t = n.r;
+    else t = Math.min(Math.abs(ux) > 1e-6 ? (n.w / 2) / Math.abs(ux) : Infinity, Math.abs(uy) > 1e-6 ? (n.h / 2) / Math.abs(uy) : Infinity);
+    t += pad;
+    return [n.cx + ux * t, n.cy + uy * t];
+  }
+  function edge(a, b, flow, label, o) {
+    o = o || {};
+    var A = nodes[a], B = nodes[b];
+    if (!A || !B) throw new Error('edge ' + a + ' -> ' + b);
+    var ax = o.ax != null ? o.ax : A.cx, ay = o.ay != null ? o.ay : A.cy;
+    var bx = o.bx != null ? o.bx : B.cx, by = o.by != null ? o.by : B.cy;
+    var mx = (ax + bx) / 2, my = (ay + by) / 2;
+    var dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+    var nx = -dy / len, ny = dx / len;
+    var bend = o.bend || 0;
+    var C = [mx + nx * bend * 2, my + ny * bend * 2];
+    var kind = flow === 'depends' ? 'dep' : flow === 'tether' ? 'tether' : 'flow';
+    var gap = kind === 'tether' ? 8 : 18;
+    var P0 = A.kind === 'rect' && o.ax != null ? [ax, ay] : clip(A, C[0] - A.cx, C[1] - A.cy, gap);
+    var P2 = B.kind === 'rect' && o.bx != null ? [bx, by] : clip(B, C[0] - B.cx, C[1] - B.cy, gap);
+    var d = 'M ' + P0[0].toFixed(1) + ' ' + P0[1].toFixed(1) + ' Q ' + C[0].toFixed(1) + ' ' + C[1].toFixed(1) + ' ' + P2[0].toFixed(1) + ' ' + P2[1].toFixed(1);
+    var markers = '';
+    if (kind === 'flow') markers = ' marker-start="url(#mk-' + flow + ')" marker-end="url(#mk-' + flow + ')"';
+    if (kind === 'dep') markers = ' marker-end="url(#mk-depends)"';
+    var s = '<g class="edge ' + kind + ' f-' + flow + '" data-a="' + a + '" data-b="' + b + '" data-flow="' + flow + '">';
+    if (kind !== 'tether') s += '<path class="halo" d="' + d + '"/>';
+    s += '<path class="line" d="' + d + '"' + markers + '/>';
+    if (label) {
+      var t = o.t != null ? o.t : 0.5;
+      var lx = (1 - t) * (1 - t) * P0[0] + 2 * (1 - t) * t * C[0] + t * t * P2[0];
+      var ly = (1 - t) * (1 - t) * P0[1] + 2 * (1 - t) * t * C[1] + t * t * P2[1];
+      var size = 30;
+      var w = label.length * size * CHAR + 56;
+      s += '<rect class="pill" x="' + (lx - w / 2).toFixed(1) + '" y="' + (ly - 30).toFixed(1) + '" width="' + w.toFixed(1) + '" height="60" rx="30"/>';
+      s += '<text class="pill-text" x="' + lx.toFixed(1) + '" y="' + (ly + 10).toFixed(1) + '" font-size="' + size + '" text-anchor="middle">' + esc(label) + '</text>';
+    }
+    s += '</g>';
+    (kind === 'tether' ? out.labels : out.edges).push(s);
+  }
+
+  // Leads
+  edge('t-mkt', 's-de', 'leads', 'German delivery capacity');
+  edge('h-leads', 's-de', 'leads', 'Group project opportunities');
+  edge('h-leads', 's-pl', 'leads', 'Polish opportunities', { bend: -60 });
+  edge('t-mkt', 's-ch', 'leads', 'Access to Swiss contractors', { bend: 120, t: 0.62 });
+  // People
+  edge('t-cap', 's-pl', 'people', 'Polish team delivers', { bend: -80, t: 0.62 });
+  edge('h-ment', 'p-dev', 'people', 'Mentoring from senior people', { bend: -60 });
+  edge('t-cap', 'w-h', 'people', 'MEP discipline leads', { ax: 1000, ay: 1180, bx: 3960, by: 760, bend: -230, t: 0.5 });
+  // Standards
+  edge('t-ua', 'h-nl', 'standards', 'Ukrainian signature ⇄ scale and methodology', { bend: -340 });
+  edge('h-nl', 's-pl', 'standards', 'Local brand and signature', { t: 0.45 });
+  // Local experience
+  edge('t-ua', 's-pl', 'local', 'Ukraine entry know-how ⇄ Polish market', { bend: 40 });
+  edge('h-nl', 's-ch', 'local', 'Group subsidiary', { t: 0.55 });
+  // Training
+  edge('t-way', 'h-proc', 'training', 'Short adoption cycle ⇄ process maturity', { bend: 230, t: 0.46 });
+  edge('h-train', 'w-t', 'training', 'Training material and methodology', { bend: 60, t: 0.5 });
+  edge('x-road', 't-way', 'training', 'Validation tooling', { t: 0.5 });
+  // Depends on
+  edge('p-mob', 'band', 'depends', 'Who may sign where', { ax: 4720, ay: 3640 + 0, bx: 4720, by: BAND_Y - 18, t: 0.62 });
+  edge('p-mob', 's-pl', 'depends', 'Which leads can be taken', { t: 0.3 });
+  edge('m-emb', 'm-own', 'depends', 'Direction of travel', { bend: -40 });
+  edge('m-own', 'band', 'depends', 'Needs local signature', { bx: 6720, by: BAND_Y - 18, t: 0.5 });
+  // Questions tethered to their subject
+  edge('q-eng', 't-cap', 'tether');
+  edge('q-sec', 'x-it', 'tether');
+  edge('q-data', 'x-it', 'tether');
+  edge('q-lic', 'h-train', 'tether');
+  edge('q-pl', 's-pl', 'tether');
+  edge('q-std', 'band', 'tether', null, { bx: 5490, by: BAND_Y - 8 });
+
+  // ── Assemble ──
+  var defs = document.getElementById('defs');
+  defs.innerHTML =
+    '<pattern id="dotgrid" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="30" cy="30" r="3.2" fill="var(--dots)"/></pattern>' +
+    ['leads', 'people', 'standards', 'local', 'training', 'depends'].map(function (f) {
+      return '<marker id="mk-' + f + '" markerUnits="userSpaceOnUse" markerWidth="46" markerHeight="38" refX="40" refY="19" orient="auto-start-reverse"><path class="m-' + f + '" d="M 0 0 L 46 19 L 0 38 L 9 19 Z"/></marker>';
+    }).join('');
+  var world = document.getElementById('world');
+  world.innerHTML = out.zones.join('') + out.labels.join('') + out.edges.join('') + out.nodes.join('');
+  // Edge pills above boxes: move label groups of flows last so they are never hidden
+  Array.prototype.forEach.call(world.querySelectorAll('.edge.flow, .edge.dep'), function (g) {
+    var pill = g.querySelectorAll('.pill, .pill-text');
+    if (!pill.length) return;
+    var top = document.createElementNS(NS, 'g');
+    top.setAttribute('class', g.getAttribute('class'));
+    top.setAttribute('data-a', g.getAttribute('data-a'));
+    top.setAttribute('data-b', g.getAttribute('data-b'));
+    top.setAttribute('data-flow', g.getAttribute('data-flow'));
+    Array.prototype.forEach.call(pill, function (p) { top.appendChild(p); });
+    world.appendChild(top);
+  });
+
+  // ── Camera ────────────────────────────────────────────────────────
+  var svg = document.getElementById('board');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cam = { x: 0, y: 0, w: WORLD.w, h: WORLD.h };
+  function aspect() { return window.innerHeight / window.innerWidth; }
+  function apply() { svg.setAttribute('viewBox', cam.x + ' ' + cam.y + ' ' + cam.w + ' ' + cam.h); }
+  function fitRect(r, margin) {
+    margin = margin == null ? 0.06 : margin;
+    var w = r.w * (1 + margin * 2), h = r.h * (1 + margin * 2);
+    var a = aspect();
+    if (h / w > a) w = h / a; else h = w * a;
+    return { x: r.x + r.w / 2 - w / 2, y: r.y + r.h / 2 - h / 2, w: w, h: h };
+  }
+  var anim = null;
+  function flyTo(r, margin) {
+    var target = fitRect(r, margin);
+    if (anim) cancelAnimationFrame(anim);
+    if (reduce) { cam = target; apply(); return; }
+    var from = { x: cam.x, y: cam.y, w: cam.w, h: cam.h };
+    var start = performance.now(), dur = 850;
+    (function step(now) {
+      var k = Math.min(1, (now - start) / dur);
+      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      cam = { x: from.x + (target.x - from.x) * e, y: from.y + (target.y - from.y) * e, w: from.w + (target.w - from.w) * e, h: from.h + (target.h - from.h) * e };
+      apply();
+      if (k < 1) anim = requestAnimationFrame(step); else anim = null;
+    })(start);
+  }
+  function zoomAt(factor, px, py) {
+    var nw = Math.min(22000, Math.max(500, cam.w * factor));
+    var f = nw / cam.w;
+    cam = { x: px - (px - cam.x) * f, y: py - (py - cam.y) * f, w: nw, h: nw * aspect() };
+    apply();
+  }
+  function screenToWorld(sx, sy) {
+    return [cam.x + (sx / window.innerWidth) * cam.w, cam.y + (sy / window.innerHeight) * cam.h];
+  }
+
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (anim) { cancelAnimationFrame(anim); anim = null; }
+    var p = screenToWorld(e.clientX, e.clientY);
+    zoomAt(Math.exp(e.deltaY * 0.0014), p[0], p[1]);
+  }, { passive: false });
+
+  var drag = null;
+  svg.addEventListener('pointerdown', function (e) {
+    if (anim) { cancelAnimationFrame(anim); anim = null; }
+    drag = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y, moved: false, target: e.target };
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) > 5) { drag.moved = true; svg.classList.add('dragging'); }
+    if (drag.moved) {
+      cam.x = drag.cx - dx * (cam.w / window.innerWidth);
+      cam.y = drag.cy - dy * (cam.h / window.innerHeight);
+      apply();
+    }
+  });
+  svg.addEventListener('pointerup', function () {
+    if (drag && !drag.moved) {
+      var n = drag.target.closest && drag.target.closest('.node');
+      if (n) focusNode(n.getAttribute('data-id')); else clearFocus();
+    }
+    drag = null;
+    svg.classList.remove('dragging');
+  });
+
+  window.addEventListener('resize', function () {
+    var cx = cam.x + cam.w / 2, cy = cam.y + cam.h / 2;
+    cam.h = cam.w * aspect();
+    cam.x = cx - cam.w / 2; cam.y = cy - cam.h / 2;
+    apply();
+  });
+
+  // ── Focus ──
+  var legendButtons = Array.prototype.slice.call(document.querySelectorAll('#legend button'));
+  function setOn(els) {
+    Array.prototype.forEach.call(world.querySelectorAll('.on'), function (el) { el.classList.remove('on'); });
+    els.forEach(function (el) { el.classList.add('on'); });
+    svg.classList.toggle('focus', els.length > 0);
+  }
+  function clearFocus() {
+    setOn([]);
+    legendButtons.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+  }
+  function focusNode(id) {
+    var edges = Array.prototype.filter.call(world.querySelectorAll('.edge'), function (g) {
+      return g.getAttribute('data-a') === id || g.getAttribute('data-b') === id;
+    });
+    var ids = {}; ids[id] = true;
+    edges.forEach(function (g) { ids[g.getAttribute('data-a')] = true; ids[g.getAttribute('data-b')] = true; });
+    var ns = Array.prototype.filter.call(world.querySelectorAll('.node'), function (n) { return ids[n.getAttribute('data-id')]; });
+    legendButtons.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+    setOn(edges.concat(ns));
+  }
+  function focusFlow(flow, btn) {
+    if (btn.getAttribute('aria-pressed') === 'true') { clearFocus(); return; }
+    var edges = Array.prototype.slice.call(world.querySelectorAll('.edge[data-flow="' + flow + '"]'));
+    var ids = {};
+    edges.forEach(function (g) { ids[g.getAttribute('data-a')] = true; ids[g.getAttribute('data-b')] = true; });
+    var ns = Array.prototype.filter.call(world.querySelectorAll('.node'), function (n) { return ids[n.getAttribute('data-id')]; });
+    setOn(edges.concat(ns));
+    legendButtons.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+  }
+  legendButtons.forEach(function (b) {
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () { focusFlow(b.getAttribute('data-flow'), b); });
+  });
+
+  // ── Chapters ──
+  var chapters = [
+    ['Overview', { x: WORLD.x, y: WORLD.y, w: WORLD.w, h: WORLD.h }, 0.02],
+    ['TEBIN', { x: 120, y: 620, w: 2460, h: 2780 }],
+    ['Haskoning', { x: 4840, y: 620, w: 2460, h: 2780 }],
+    ['Looking for', { x: 2380, y: 170, w: 2640, h: 800 }],
+    ['Shared markets', { x: 2300, y: 950, w: 2800, h: 2500 }],
+    ['Poland', { x: 3000, y: 1640, w: 1400, h: 1160 }],
+    ['People and model', { x: 1250, y: 3420, w: 5900, h: 1050 }],
+    ['One line', { x: 250, y: 4400, w: 6900, h: 700 }],
+    ['Track record', { x: 250, y: 5080, w: 6900, h: WORLD.h - 5080 }]
+  ];
+  var nav = document.getElementById('chapters');
+  var navButtons = chapters.map(function (c, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<kbd>' + (i + 1) + '</kbd>' + esc(c[0]);
+    b.addEventListener('click', function () { go(i); });
+    nav.appendChild(b);
+    return b;
+  });
+  function go(i) {
+    navButtons.forEach(function (b, j) { b.classList.toggle('active', i === j); });
+    flyTo(chapters[i][1], chapters[i][2]);
+  }
+
+  // ── Tools ──
+  function centreZoom(f) { zoomAt(f, cam.x + cam.w / 2, cam.y + cam.h / 2); }
+  document.getElementById('zoom-in').addEventListener('click', function () { centreZoom(0.75); });
+  document.getElementById('zoom-out').addEventListener('click', function () { centreZoom(1 / 0.75); });
+  document.getElementById('fit').addEventListener('click', function () { go(0); });
+  var themeBtn = document.getElementById('theme');
+  function syncTheme() { themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark'; }
+  function toggleTheme() {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('board-theme', next); } catch (_) {}
+    syncTheme();
+  }
+  themeBtn.addEventListener('click', toggleTheme);
+  syncTheme();
+  function toggleFull() {
+    if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {}); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  }
+  document.getElementById('full').addEventListener('click', toggleFull);
+  var legendPanel = document.getElementById('legend');
+  var legendToggle = document.getElementById('legend-toggle');
+  function toggleLegend() {
+    legendPanel.hidden = !legendPanel.hidden;
+    legendToggle.setAttribute('aria-pressed', legendPanel.hidden ? 'false' : 'true');
+  }
+  legendToggle.addEventListener('click', toggleLegend);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k >= '1' && k <= '9' && chapters[Number(k) - 1]) { go(Number(k) - 1); return; }
+    if (k === '0') { go(0); return; }
+    if (k === '+' || k === '=') centreZoom(0.8);
+    else if (k === '-' || k === '_') centreZoom(1.25);
+    else if (k === 'f' || k === 'F') toggleFull();
+    else if (k === 't' || k === 'T') toggleTheme();
+    else if (k === 'l' || k === 'L') toggleLegend();
+    else if (k === 'Escape') clearFocus();
+    else if (k.indexOf('Arrow') === 0) {
+      var step = cam.w * 0.12;
+      if (k === 'ArrowLeft') cam.x -= step;
+      if (k === 'ArrowRight') cam.x += step;
+      if (k === 'ArrowUp') cam.y -= step;
+      if (k === 'ArrowDown') cam.y += step;
+      apply();
+    } else return;
+    e.preventDefault();
+  });
+
+  var startChapter = 0;
+  try {
+    var q = Number(new URLSearchParams(location.search).get('chapter'));
+    if (q >= 1 && q <= chapters.length) startChapter = q - 1;
+  } catch (_) {}
+  cam = fitRect(chapters[startChapter][1], chapters[startChapter][2]);
+  apply();
+  navButtons[startChapter].classList.add('active');
+})();
+</script>
+</body>
+</html>

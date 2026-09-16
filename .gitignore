@@ -1,0 +1,7 @@
+# Obsidian per-machine UI state
+.obsidian/workspace.json
+
+# OS / sync cruft
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="archify 2.11.0">
+  <title>TEBIN · Haskoning network</title>
+  <script>
+    // Resolve the theme before first paint so light-preference users don't
+    // see a dark flash. The toolbar script below re-applies with UI state.
+    (function () {
+      try {
+        var theme = null;
+        try {
+          var param = new URLSearchParams(window.location.search).get('theme');
+          if (param === 'light' || param === 'dark') theme = param;
+        } catch (_) {}
+        if (!theme) {
+          try { theme = localStorage.getItem('archify-theme'); } catch (_) {}
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {}
+    })();
+  </script>
+  <style>
+    /* ==========================================================
+       THEME VARIABLES — switch by toggling [data-theme] on <html>
+       ========================================================== */
+    :root,
+    [data-theme="light"] {
+      --bg: #F4F3EE;
+      --grid: #E9E7E0;
+      --text: #292929;
+      --text-muted: #5E5E5E;
+      --text-dim: #8C8C8C;
+      --text-faint: #666666;
+      --panel: #FCFBF8;
+      --panel-border: #E0DDD3;
+      --lane-fill: rgba(41, 41, 41, 0.02);
+      --lane-stroke: #D6D3CA;
+      --arrow: #8C8C8C;
+      --arrow-emphasis: #292929;
+      --mask: #FCFBF8;
+      --cloud-fill: rgba(218, 41, 28, 0.06);
+      --cloud-stroke: #DA291C;
+      --security-fill: rgba(0, 46, 79, 0.06);
+      --security-stroke: #002E4F;
+      --external-fill: rgba(41, 41, 41, 0.03);
+      --external-stroke: #9A968C;
+      --frontend-fill: rgba(41, 41, 41, 0.03);
+      --frontend-stroke: #292929;
+      --backend-fill: rgba(41, 41, 41, 0.03);
+      --backend-stroke: #5E5E5E;
+      --database-fill: rgba(41, 41, 41, 0.03);
+      --database-stroke: #5E5E5E;
+      --messagebus-fill: rgba(41, 41, 41, 0.03);
+      --messagebus-stroke: #5E5E5E;
+      --tebin-zone: rgba(218, 41, 28, 0.025);
+      --hask-zone: rgba(0, 46, 79, 0.025);
+      --flow-leads: #009EAB;
+      --flow-people: #8A5300;
+      --flow-standards: #206087;
+      --flow-local: #3F6449;
+      --flow-training: #7A6958;
+      --toolbar-bg: rgba(252, 251, 248, 0.92);
+      --toolbar-border: #D6D3CA;
+      --toolbar-text: #292929;
+      --toolbar-hover: #FCFBF8;
+      --toolbar-menu-bg: #FCFBF8;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1B1E24;
+      --grid: #262A32;
+      --text: #EDEDEA;
+      --text-muted: #B9B9B4;
+      --text-dim: #7E828A;
+      --text-faint: #A5A8AE;
+      --panel: #242830;
+      --panel-border: #343944;
+      --lane-fill: rgba(237, 237, 234, 0.02);
+      --lane-stroke: #3A3F4A;
+      --arrow: #7E828A;
+      --arrow-emphasis: #EDEDEA;
+      --mask: #242830;
+      --cloud-fill: rgba(234, 99, 89, 0.10);
+      --cloud-stroke: #EA6359;
+      --security-fill: rgba(132, 195, 211, 0.10);
+      --security-stroke: #84C3D3;
+      --external-fill: rgba(237, 237, 234, 0.04);
+      --external-stroke: #6F747D;
+      --frontend-fill: rgba(237, 237, 234, 0.04);
+      --frontend-stroke: #EDEDEA;
+      --backend-fill: rgba(237, 237, 234, 0.04);
+      --backend-stroke: #B9B9B4;
+      --database-fill: rgba(237, 237, 234, 0.04);
+      --database-stroke: #B9B9B4;
+      --messagebus-fill: rgba(237, 237, 234, 0.04);
+      --messagebus-stroke: #B9B9B4;
+      --tebin-zone: rgba(234, 99, 89, 0.04);
+      --hask-zone: rgba(132, 195, 211, 0.04);
+      --flow-leads: #2BB8C4;
+      --flow-people: #F0B429;
+      --flow-standards: #8FB8DE;
+      --flow-local: #5FCF8E;
+      --flow-training: #C7B093;
+      --toolbar-bg: rgba(36, 40, 48, 0.85);
+      --toolbar-border: #3A3F4A;
+      --toolbar-text: #EDEDEA;
+      --toolbar-hover: #2C313A;
+      --toolbar-menu-bg: #242830;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem;
+      color: var(--text);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .header { margin-bottom: 2rem; }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--frontend-stroke);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-left: 1.75rem;
+    }
+
+    .diagram-container {
+      background: var(--panel);
+      border-radius: 1rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: min(900px, 100%);
+      display: block;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .card-dot.cyan     { background: var(--frontend-stroke); }
+    .card-dot.emerald  { background: var(--backend-stroke); }
+    .card-dot.violet   { background: var(--database-stroke); }
+    .card-dot.amber    { background: var(--cloud-stroke); }
+    .card-dot.rose     { background: var(--security-stroke); }
+    .card-dot.orange   { background: var(--messagebus-stroke); }
+    .card-dot.slate    { background: var(--external-stroke); }
+
+    .card h3 { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+
+    .card ul {
+      list-style: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .card li { margin-bottom: 0.375rem; }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: var(--text-faint);
+      font-size: 0.75rem;
+    }
+
+    /* ==========================================================
+       Print stylesheet — hide interactive controls, force light,
+       drop the grid so the diagram doesn't waste ink, use landscape
+       so wide diagrams fit, pack summary cards into 2 columns to
+       avoid an orphan card on a trailing page.
+       ========================================================== */
+    @page { size: landscape; margin: 1.5cm; }
+
+    @media print {
+      /* Force the FULL light palette — including component fills/strokes and
+         lane/arrow colors — so printing from dark theme doesn't put neon
+         strokes and translucent dark fills on white paper. */
+      :root, [data-theme="dark"], [data-theme="light"] {
+      --bg: #F4F3EE;
+      --grid: #E9E7E0;
+      --text: #292929;
+      --text-muted: #5E5E5E;
+      --text-dim: #8C8C8C;
+      --text-faint: #666666;
+      --panel: #FCFBF8;
+      --panel-border: #E0DDD3;
+      --lane-fill: rgba(41, 41, 41, 0.02);
+      --lane-stroke: #D6D3CA;
+      --arrow: #8C8C8C;
+      --arrow-emphasis: #292929;
+      --mask: #FCFBF8;
+      --cloud-fill: rgba(218, 41, 28, 0.06);
+      --cloud-stroke: #DA291C;
+      --security-fill: rgba(0, 46, 79, 0.06);
+      --security-stroke: #002E4F;
+      --external-fill: rgba(41, 41, 41, 0.03);
+      --external-stroke: #9A968C;
+      --frontend-fill: rgba(41, 41, 41, 0.03);
+      --frontend-stroke: #292929;
+      --backend-fill: rgba(41, 41, 41, 0.03);
+      --backend-stroke: #5E5E5E;
+      --database-fill: rgba(41, 41, 41, 0.03);
+      --database-stroke: #5E5E5E;
+      --messagebus-fill: rgba(41, 41, 41, 0.03);
+      --messagebus-stroke: #5E5E5E;
+      --tebin-zone: rgba(218, 41, 28, 0.025);
+      --hask-zone: rgba(0, 46, 79, 0.025);
+      --flow-leads: #009EAB;
+      --flow-people: #8A5300;
+      --flow-standards: #206087;
+      --flow-local: #3F6449;
+      --flow-training: #7A6958;
+      --toolbar-bg: rgba(252, 251, 248, 0.92);
+      --toolbar-border: #D6D3CA;
+      --toolbar-text: #292929;
+      --toolbar-hover: #FCFBF8;
+      --toolbar-menu-bg: #FCFBF8;
+        --bg: #ffffff;
+        --grid: transparent;
+      }
+      body { background: #ffffff !important; padding: 0; }
+      .container { max-width: none; }
+      .toolbar, .archify-toast, .no-print { display: none !important; }
+      .diagram-container, .card { box-shadow: none; border-color: #e2e8f0; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      /* Ensure elements break sensibly across pages */
+      .card { break-inside: avoid; page-break-inside: avoid; }
+      .diagram-container { break-inside: avoid; page-break-inside: avoid; }
+      h1, .subtitle { color: #0f172a; }
+    }
+
+    /* ==========================================================
+       TOOLBAR (theme toggle + export menu)
+       ========================================================== */
+    .toolbar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+    .toolbar button {
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+      border: 1px solid var(--toolbar-border);
+      padding: 0.5rem 0.875rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .toolbar button:hover {
+      background: var(--toolbar-hover);
+      border-color: var(--arrow);
+    }
+    .toolbar button:focus-visible {
+      outline: 2px solid var(--frontend-stroke);
+      outline-offset: 2px;
+    }
+    .toolbar .export-wrap { position: relative; }
+    .toolbar .export-menu {
+      position: absolute;
+      top: calc(100% + 0.375rem);
+      right: 0;
+      background: var(--toolbar-menu-bg);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 0.5rem;
+      padding: 0.375rem;
+      min-width: 160px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .toolbar .export-menu.open { display: flex; }
+    .toolbar .export-menu button {
+      background: transparent;
+      border: 0;
+      justify-content: space-between;
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+    }
+    .toolbar .export-menu button:hover {
+      background: var(--toolbar-hover);
+    }
+    .toolbar .export-menu .hint {
+      color: var(--text-faint);
+      font-size: 0.625rem;
+    }
+    .toolbar .export-menu hr {
+      border: 0;
+      border-top: 1px solid var(--toolbar-border);
+      margin: 0.25rem 0.375rem;
+      opacity: 0.5;
+    }
+
+    /* Toast — brief feedback for actions like "copied" */
+    .archify-toast {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: var(--toolbar-menu-bg);
+      color: var(--text);
+      border: 1px solid var(--toolbar-border);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 200;
+      pointer-events: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .archify-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 1rem; }
+      .toolbar {
+        position: static;
+        justify-content: flex-end;
+        margin-bottom: 1rem;
+      }
+      .header { margin-bottom: 1.25rem; }
+      .header-row {
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      h1 {
+        font-size: 1.25rem;
+        line-height: 1.25;
+      }
+      .subtitle {
+        margin-left: 0;
+        font-size: 0.8125rem;
+        line-height: 1.55;
+      }
+      .diagram-container {
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+      }
+      .cards {
+        grid-template-columns: 1fr;
+        margin-top: 1rem;
+      }
+    }
+
+    /* ==========================================================
+       SVG SEMANTIC CLASSES — use these instead of inline fill/stroke
+       ========================================================== */
+    .c-grid       { stroke: var(--grid); fill: none; }
+    .c-mask       { fill: var(--mask); stroke: none; }
+
+    .c-frontend   { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
+    .c-backend    { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
+    .c-database   { fill: var(--database-fill);   stroke: var(--database-stroke); }
+    .c-cloud      { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
+    .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
+    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
+
+    /* Text helpers */
+    .t-primary { fill: var(--text); }
+    .t-muted   { fill: var(--text-muted); }
+    .t-dim     { fill: var(--text-dim); }
+    .t-frontend   { fill: var(--frontend-stroke); }
+    .t-backend    { fill: var(--backend-stroke); }
+    .t-database   { fill: var(--database-stroke); }
+    .t-cloud      { fill: var(--cloud-stroke); }
+    .t-security   { fill: var(--security-stroke); }
+    .t-messagebus { fill: var(--messagebus-stroke); }
+    .t-external   { fill: var(--external-stroke); }
+
+    /* Arrows */
+    .a-default   { stroke: var(--arrow); fill: none; }
+    .a-emphasis  { stroke: var(--arrow-emphasis); fill: none; }
+    .a-security  { stroke: var(--security-stroke); fill: none; stroke-dasharray: 5,5; }
+    .a-dashed    { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4,4; }
+
+    /* Arrowhead markers reference these */
+    .m-default   { fill: var(--arrow); }
+    .m-emphasis  { fill: var(--arrow-emphasis); }
+    .m-security  { fill: var(--security-stroke); }
+    .m-dashed    { fill: var(--database-stroke); }
+
+    /* Dashed boundary variants */
+    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
+    .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+    .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
+
+    /* Optional trace animation, enabled only by meta.animation = "trace".
+       Static diagrams do not carry data-animation and render exactly as before. */
+    svg[data-animation="trace"] [data-animate="edge"] {
+      stroke-dasharray: 10 8;
+      stroke-dashoffset: 54;
+      animation: archify-edge-flow 2.4s linear infinite;
+      animation-delay: calc(var(--step, 0) * 160ms);
+    }
+    svg[data-animation="trace"] [data-animate="node"] {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: archify-node-pulse 3.6s ease-in-out infinite;
+      animation-delay: calc(var(--step, 0) * 160ms);
+    }
+    @keyframes archify-edge-flow {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes archify-node-pulse {
+      0%, 72%, 100% { filter: none; stroke-width: 1.5; }
+      18%, 36% {
+        filter: drop-shadow(0 0 8px var(--arrow-emphasis));
+        stroke-width: 2.4;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      svg[data-animation="trace"] [data-animate] {
+        animation: none !important;
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* ── TEBIN · Haskoning overrides ── */
+    h1 { letter-spacing: 0; text-wrap: balance; }
+    .subtitle { margin-left: 0; }
+    .c-region, .c-security-group { stroke-dasharray: 8 5; rx: 14px; }
+    .c-region { fill: var(--tebin-zone); stroke: var(--cloud-stroke); }
+    .c-security-group { fill: var(--hask-zone); stroke: var(--security-stroke); }
+    .a-flow-leads { stroke: var(--flow-leads); fill: none; }
+    .m-flow-leads { fill: var(--flow-leads); }
+    .a-flow-people { stroke: var(--flow-people); fill: none; }
+    .m-flow-people { fill: var(--flow-people); }
+    .a-flow-standards { stroke: var(--flow-standards); fill: none; }
+    .m-flow-standards { fill: var(--flow-standards); }
+    .a-flow-local { stroke: var(--flow-local); fill: none; }
+    .m-flow-local { fill: var(--flow-local); }
+    .a-flow-training { stroke: var(--flow-training); fill: none; }
+    .m-flow-training { fill: var(--flow-training); }
+    .t-section { fill: var(--text); }
+    .t-section-note { fill: var(--text-muted); }
+    .section { margin-top: 2.5rem; }
+    .section-title { font-size: 1.05rem; font-weight: 600; text-wrap: balance; }
+    .section .cards { margin-top: 0.875rem; }
+    .cards-two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card ul { font-size: 0.8125rem; line-height: 1.45; }
+    .card li { margin-bottom: 0.45rem; }
+    .card li strong { color: var(--text); font-weight: 600; }
+    .card li.placeholder { color: var(--text-muted); font-style: italic; }
+    .card-dot { flex: none; }
+    .card-dot.d-tebin { background: var(--cloud-stroke); }
+    .card-dot.d-hask { background: var(--security-stroke); }
+    .card-dot.d-neutral { background: var(--external-stroke); }
+    .card-dot.d-leads { background: var(--flow-leads); }
+    .card-dot.d-people { background: var(--flow-people); }
+    .card-dot.d-standards { background: var(--flow-standards); }
+    .card-dot.d-local { background: var(--flow-local); }
+    .card-dot.d-training { background: var(--flow-training); }
+  </style>
+</head>
+<body>
+  <!-- Toolbar: theme toggle + export menu (present on every generated diagram)
+       Keyboard: T toggles theme, E opens export menu (when no input focused) -->
+  <div class="toolbar" role="toolbar" aria-label="Diagram actions">
+    <button id="btn-theme" type="button"
+            title="Toggle theme (T)"
+            aria-label="Toggle color theme"
+            aria-pressed="false">
+      <span id="theme-icon" aria-hidden="true">&#9790;</span>
+      <span id="theme-label">Dark</span>
+    </button>
+    <div class="export-wrap">
+      <button id="btn-export" type="button"
+              title="Export diagram (E)"
+              aria-label="Export diagram"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="export-menu">
+        Export <span aria-hidden="true">&#9662;</span>
+      </button>
+      <div class="export-menu" id="export-menu" role="menu" aria-label="Export">
+        <button data-action="copy"  type="button" role="menuitem" tabindex="-1">Copy to clipboard <span class="hint">PNG</span></button>
+        <hr role="separator">
+        <button data-format="png"   type="button" role="menuitem" tabindex="-1">Download PNG</button>
+        <button data-format="jpeg"  type="button" role="menuitem" tabindex="-1">Download JPEG</button>
+        <button data-format="webp"  type="button" role="menuitem" tabindex="-1">Download WebP</button>
+        <hr role="separator">
+        <button data-format="svg"   type="button" role="menuitem" tabindex="-1">Download SVG <span class="hint">vector</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-row">
+        <h1>TEBIN · Haskoning — one network</h1>
+      </div>
+      <p class="subtitle">What each side has · what each side wants · where the network touches · how a joint operating model can look</p>
+    </div>
+
+    <!-- Main Diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 1130 1366" role="img" aria-label="TEBIN · Haskoning — one network — What each side has · what each side wants · where the network touches · how a joint operating model can look (architecture diagram)">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+          <marker id="flow-leads" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-flow-leads" />
+          </marker>
+          <marker id="flow-people" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-flow-people" />
+          </marker>
+          <marker id="flow-standards" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-flow-standards" />
+          </marker>
+          <marker id="flow-local" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-flow-local" />
+          </marker>
+          <marker id="flow-training" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-flow-training" />
+          </marker>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect x="10" y="60" width="420" height="1020" rx="12" class="c-region" stroke-width="1"/>
+        <text x="18" y="78" class="t-cloud" font-size="9" font-weight="600">TEBIN</text>
+
+        <rect x="670" y="60" width="420" height="1020" rx="8" class="c-security-group" stroke-width="1"/>
+        <text x="678" y="78" class="t-security" font-size="9" font-weight="600">Haskoning group</text>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path d="M 400 218 L 700 218" class="a-flow-standards" stroke-width="2" marker-start="url(#flow-standards)" marker-end="url(#flow-standards)"/>
+        <path d="M 400 310 L 700 310" class="a-flow-standards" stroke-width="2" marker-start="url(#flow-standards)" marker-end="url(#flow-standards)"/>
+        <path d="M 400 402 L 700 402" class="a-flow-leads" stroke-width="2" marker-start="url(#flow-leads)" marker-end="url(#flow-leads)"/>
+        <path d="M 400 494 L 700 494" class="a-flow-leads" stroke-width="2" marker-start="url(#flow-leads)" marker-end="url(#flow-leads)"/>
+        <path d="M 400 638 L 700 638" class="a-flow-leads" stroke-width="2" marker-start="url(#flow-leads)" marker-end="url(#flow-leads)"/>
+        <path d="M 400 734 L 700 734" class="a-flow-people" stroke-width="2" marker-start="url(#flow-people)" marker-end="url(#flow-people)"/>
+        <path d="M 400 830 L 700 830" class="a-flow-standards" stroke-width="2" marker-start="url(#flow-standards)" marker-end="url(#flow-standards)"/>
+        <path d="M 400 926 L 700 926" class="a-flow-local" stroke-width="2" marker-start="url(#flow-local)" marker-end="url(#flow-local)"/>
+        <path d="M 400 1022 L 700 1022" class="a-flow-training" stroke-width="2" marker-start="url(#flow-training)" marker-end="url(#flow-training)"/>
+
+        <!-- Components -->
+        <rect x="40" y="90" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="90" width="360" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="124" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">TEBIN</text>
+        <text x="220" y="140" class="t-muted" font-size="9" text-anchor="middle">about 70 people · MEP-led engineering</text>
+
+        <rect x="700" y="90" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="700" y="90" width="360" height="72" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="124" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Haskoning</text>
+        <text x="880" y="140" class="t-muted" font-size="9" text-anchor="middle">Dutch group · subsidiaries in several countries</text>
+
+        <rect x="40" y="182" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="182" width="360" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="216" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Ukraine</text>
+        <text x="220" y="232" class="t-muted" font-size="9" text-anchor="middle">engineering base · legal entity</text>
+        <text x="220" y="246" class="t-cloud" font-size="8.5" text-anchor="middle">local signing authority · active projects</text>
+
+        <rect x="700" y="182" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="700" y="182" width="360" height="72" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="216" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Netherlands</text>
+        <text x="880" y="232" class="t-muted" font-size="9" text-anchor="middle">group centre</text>
+
+        <rect x="40" y="274" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="274" width="360" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="308" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Poland</text>
+        <text x="220" y="324" class="t-muted" font-size="9" text-anchor="middle">legal entity · team of 15–20, growing</text>
+        <text x="220" y="338" class="t-cloud" font-size="8.5" text-anchor="middle">no active Polish projects yet</text>
+
+        <rect x="700" y="274" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="700" y="274" width="360" height="72" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="308" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Poland</text>
+        <text x="880" y="324" class="t-muted" font-size="9" text-anchor="middle">local subsidiary</text>
+
+        <rect x="40" y="366" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="366" width="360" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="400" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Germany</text>
+        <text x="220" y="416" class="t-muted" font-size="9" text-anchor="middle">main delivery market — active</text>
+
+        <rect x="700" y="366" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="700" y="366" width="360" height="72" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="400" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Germany</text>
+        <text x="880" y="416" class="t-muted" font-size="9" text-anchor="middle">group presence</text>
+
+        <rect x="40" y="458" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="458" width="360" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="492" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Switzerland</text>
+        <text x="220" y="508" class="t-muted" font-size="9" text-anchor="middle">direct access to Swiss contractors</text>
+
+        <rect x="700" y="458" width="360" height="72" rx="6" class="c-mask"/>
+        <rect x="700" y="458" width="360" height="72" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="492" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Switzerland</text>
+        <text x="880" y="508" class="t-muted" font-size="9" text-anchor="middle">subsidiary</text>
+        <text x="880" y="522" class="t-security" font-size="8.5" text-anchor="middle">+ further subsidiaries — add in the room</text>
+
+        <rect x="40" y="600" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="40" y="600" width="360" height="76" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="636" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Germany · Switzerland · Ukraine</text>
+        <text x="220" y="652" class="t-muted" font-size="9" text-anchor="middle">active main market · Swiss contractors · Ukrainian relations</text>
+
+        <rect x="700" y="600" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="700" y="600" width="360" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="636" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Shared leads across subsidiaries</text>
+        <text x="880" y="652" class="t-muted" font-size="9" text-anchor="middle">Polish opportunities for joint entry</text>
+
+        <rect x="40" y="696" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="40" y="696" width="360" height="76" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="732" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">MEP discipline leads &amp; project managers</text>
+        <text x="220" y="748" class="t-muted" font-size="9" text-anchor="middle">advanced BIM coordinators · full-time on projects</text>
+        <text x="220" y="764" class="t-cloud" font-size="8.5" text-anchor="middle">one of Haskoning&#39;s stated needs</text>
+
+        <rect x="700" y="696" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="700" y="696" width="360" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="732" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Senior mentors for TEBIN teams</text>
+        <text x="880" y="748" class="t-muted" font-size="9" text-anchor="middle">+ add in the room</text>
+
+        <rect x="40" y="792" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="40" y="792" width="360" height="76" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="828" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Signing authority in Ukraine</text>
+        <text x="220" y="844" class="t-muted" font-size="9" text-anchor="middle">ISO 9001 · ISO 19650 · ISO 27001 in preparation</text>
+
+        <rect x="700" y="792" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="700" y="792" width="360" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="828" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Local brand &amp; signature</text>
+        <text x="880" y="844" class="t-muted" font-size="9" text-anchor="middle">Poland · Germany · Switzerland · quality frameworks</text>
+
+        <rect x="40" y="888" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="40" y="888" width="360" height="76" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="924" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Ukrainian market &amp; investor entry</text>
+        <text x="220" y="940" class="t-muted" font-size="9" text-anchor="middle">German delivery across HOAI LP3–LP5</text>
+
+        <rect x="700" y="888" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="700" y="888" width="360" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="924" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Polish market &amp; client relations</text>
+        <text x="880" y="940" class="t-muted" font-size="9" text-anchor="middle">+ other subsidiary markets — add in the room</text>
+
+        <rect x="40" y="984" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="40" y="984" width="360" height="76" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="220" y="1020" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Short adoption cycle</text>
+        <text x="220" y="1036" class="t-muted" font-size="9" text-anchor="middle">Agile &amp; Scrum · Revit automation · Digital Twin</text>
+        <text x="220" y="1052" class="t-cloud" font-size="8.5" text-anchor="middle">as-built laser scanning · MEP calculation incl. LiNear</text>
+
+        <rect x="700" y="984" width="360" height="76" rx="6" class="c-mask"/>
+        <rect x="700" y="984" width="360" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="880" y="1020" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Training material &amp; methodology</text>
+        <text x="880" y="1036" class="t-muted" font-size="9" text-anchor="middle">established corporate processes</text>
+
+        <rect x="40" y="1140" width="1020" height="56" rx="6" class="c-mask"/>
+        <rect x="40" y="1140" width="1020" height="56" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="550" y="1172" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">TEBIN prepares the work → the local entity signs and carries the responsibility</text>
+
+        <rect x="40" y="1226" width="190" height="72" rx="6" class="c-mask"/>
+        <rect x="40" y="1226" width="190" height="72" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="135" y="1260" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Ukraine</text>
+        <text x="135" y="1276" class="t-muted" font-size="9" text-anchor="middle">TEBIN signs</text>
+        <text x="135" y="1290" class="t-cloud" font-size="8.5" text-anchor="middle">partner brings scale &amp; methodology</text>
+
+        <rect x="250" y="1226" width="190" height="72" rx="6" class="c-mask"/>
+        <rect x="250" y="1226" width="190" height="72" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="345" y="1260" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Germany</text>
+        <text x="345" y="1276" class="t-muted" font-size="9" text-anchor="middle">local party signs</text>
+        <text x="345" y="1290" class="t-external" font-size="8.5" text-anchor="middle">TEBIN prepares the work</text>
+
+        <rect x="460" y="1226" width="190" height="72" rx="6" class="c-mask"/>
+        <rect x="460" y="1226" width="190" height="72" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="555" y="1260" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Poland</text>
+        <text x="555" y="1276" class="t-muted" font-size="9" text-anchor="middle">local party signs</text>
+        <text x="555" y="1290" class="t-external" font-size="8.5" text-anchor="middle">TEBIN prepares the work</text>
+
+        <rect x="670" y="1226" width="190" height="72" rx="6" class="c-mask"/>
+        <rect x="670" y="1226" width="190" height="72" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="765" y="1260" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Switzerland</text>
+        <text x="765" y="1276" class="t-muted" font-size="9" text-anchor="middle">local party signs</text>
+        <text x="765" y="1290" class="t-external" font-size="8.5" text-anchor="middle">TEBIN prepares the work</text>
+
+        <rect x="880" y="1226" width="190" height="72" rx="6" class="c-mask"/>
+        <rect x="880" y="1226" width="190" height="72" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="975" y="1260" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Other markets</text>
+        <text x="975" y="1276" class="t-muted" font-size="9" text-anchor="middle">local party signs</text>
+        <text x="975" y="1290" class="t-external" font-size="8.5" text-anchor="middle">TEBIN prepares the work</text>
+
+        <!-- Connection labels -->
+        <rect x="446.6" y="198" width="206.79999999999998" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="208" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">Ukrainian signature ⇄ scale &amp; methodology</text>
+        <rect x="449" y="290" width="202" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="300" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">TEBIN delivers ⇄ local brand &amp; signature</text>
+        <rect x="451.4" y="382" width="197.2" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="392" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">German delivery capacity ⇄ shared leads</text>
+        <rect x="453.8" y="474" width="192.4" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="484" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">Swiss contractor access ⇄ shared leads</text>
+        <rect x="468.2" y="618" width="163.6" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="628" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">project opportunities, both ways</text>
+        <rect x="456.2" y="714" width="187.6" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="724" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">MEP discipline leads ⇄ senior mentors</text>
+        <rect x="456.2" y="810" width="187.6" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="820" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">Ukrainian signature ⇄ local signature</text>
+        <rect x="437" y="906" width="226" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="916" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">Ukraine entry know-how ⇄ Polish market access</text>
+        <rect x="451.4" y="1002" width="197.2" height="14" rx="3" class="c-mask"/>
+        <text x="550" y="1012" class="t-primary" font-size="9.5" font-weight="500" text-anchor="middle">short adoption cycle ⇄ process maturity</text>
+
+        <!-- Section headings -->
+        <text x="550" y="122" class="t-section" font-size="14" font-weight="600" text-anchor="middle">Where the network touches</text>
+        <text x="550" y="566" class="t-section" font-size="14" font-weight="600" text-anchor="middle">What moves across the network</text>
+        <text x="550" y="1110" class="t-section" font-size="14" font-weight="600" text-anchor="middle">Local certification model</text>
+        <text x="550" y="1127" class="t-section-note" font-size="10" text-anchor="middle">one line through every market</text>
+
+        <!-- Legend -->
+        <rect x="40" y="1317" width="16" height="11" rx="2" class="c-cloud" stroke-width="1.2"/>
+        <text x="62" y="1326" class="t-muted" font-size="10">TEBIN</text>
+        <rect x="118" y="1317" width="16" height="11" rx="2" class="c-security" stroke-width="1.2"/>
+        <text x="140" y="1326" class="t-muted" font-size="10">Haskoning</text>
+        <rect x="220" y="1317" width="16" height="11" rx="2" class="c-external" stroke-width="1.2"/>
+        <text x="242" y="1326" class="t-muted" font-size="10">Market fact</text>
+        <path d="M 42 1346 L 90 1346" class="a-flow-leads" stroke-width="2" marker-start="url(#flow-leads)" marker-end="url(#flow-leads)"/>
+        <text x="98" y="1350" class="t-muted" font-size="10">Leads</text>
+        <path d="M 150 1346 L 198 1346" class="a-flow-people" stroke-width="2" marker-start="url(#flow-people)" marker-end="url(#flow-people)"/>
+        <text x="206" y="1350" class="t-muted" font-size="10">People &amp; competencies</text>
+        <path d="M 347.6 1346 L 395.6 1346" class="a-flow-standards" stroke-width="2" marker-start="url(#flow-standards)" marker-end="url(#flow-standards)"/>
+        <text x="403.6" y="1350" class="t-muted" font-size="10">Standards &amp; certification</text>
+        <path d="M 567.6 1346 L 615.6 1346" class="a-flow-local" stroke-width="2" marker-start="url(#flow-local)" marker-end="url(#flow-local)"/>
+        <text x="623.6" y="1350" class="t-muted" font-size="10">Local engineering experience</text>
+        <path d="M 804.4 1346 L 852.4 1346" class="a-flow-training" stroke-width="2" marker-start="url(#flow-training)" marker-end="url(#flow-training)"/>
+        <text x="860.4" y="1350" class="t-muted" font-size="10">Training &amp; know-how</text>
+      </svg>
+    </div>
+
+    <section class="section">
+      <h2 class="section-title">What each side is looking for</h2>
+      <div class="cards cards-two">
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-tebin"></div><h3>TEBIN is looking for</h3></div>
+          <ul>
+            <li><strong>Joint entry into Polish work with the Polish subsidiary or its partners — TEBIN delivers, the local side carries brand and signature</strong></li>
+            <li>Training material and methodology</li>
+            <li>Process maturity</li>
+            <li>Mentoring from senior people</li>
+            <li>Shared leads across subsidiaries</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-hask"></div><h3>Haskoning is looking for</h3></div>
+          <ul>
+            <li>Discipline lead roles on projects</li>
+            <li class="placeholder">+ add in the room</li>
+            <li class="placeholder">+ add in the room</li>
+            <li class="placeholder">+ add in the room</li>
+            <li class="placeholder">+ add in the room</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">How a joint operating model can look</h2>
+      <div class="cards ">
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Delivery models</h3></div>
+          <ul>
+            <li>Embedded in the client team — several German cases today, close to how group subsidiaries already work together</li>
+            <li>Discipline ownership — full responsibility for a discipline package; the direction of travel, dependent on local signature</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-people"></div><h3>People · competencies</h3></div>
+          <ul>
+            <li>Disciplines, seniority, languages</li>
+            <li>Roles and counts from the competency matrix</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-training"></div><h3>People · development</h3></div>
+          <ul>
+            <li>Inbound: learning material, methodology, mentoring from senior people</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-standards"></div><h3>People · mobility &amp; certification</h3></div>
+          <ul>
+            <li>Who can work formally in which market</li>
+            <li>Decides which leads can actually be taken</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Language &amp; cooperation</h3></div>
+          <ul>
+            <li>English across project staff — level varies, room to improve</li>
+            <li>No native Polish speakers yet · hiring in Poland within a year</li>
+            <li>Exchange of experience, training and full-time allocation to projects — not rotation between offices</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>IT &amp; security</h3></div>
+          <ul>
+            <li>No local servers: Microsoft 365 and Azure</li>
+            <li>Cloudflare at the edge · Zero Trust — access by identity, not network location</li>
+            <li>Works inside a partner&#39;s access standards and adapts the tooling</li>
+            <li>Tailscale mesh for distributed teams — under consideration</li>
+            <li>ISO 27001 in preparation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-training"></div><h3>Digital roadmap</h3></div>
+          <ul>
+            <li>MCP servers for Revit and CAD applications</li>
+            <li>Validators for document workflow and issued drawing packages</li>
+            <li>ISO 19650 validation · ISO 9001 quality control</li>
+            <li>The bridge between a short adoption cycle and corporate maturity</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Track record — TEBIN&#39;s own portfolio</h2>
+      <div class="cards ">
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Data centres</h3></div>
+          <ul>
+            <li>Delivered: Africa, the Netherlands</li>
+            <li>In progress: Germany, Switzerland</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Germany</h3></div>
+          <ul>
+            <li>Residential portfolio, delivered independently</li>
+            <li>Standby and uninterruptible power incl. diesel generation — ongoing</li>
+            <li>DIS, HOAI LP3–LP5</li>
+            <li>Reconstruction projects</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>As-built &amp; scanning</h3></div>
+          <ul>
+            <li>Laser scanning with a Polish partner</li>
+            <li>Current: Amazon facility, Rostock</li>
+            <li>For operating assets: reconstruction, document recovery</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Switzerland</h3></div>
+          <ul>
+            <li>HVAC modernisation for an MSD contractor</li>
+            <li>Digital Twin for MEP</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Poland</h3></div>
+          <ul>
+            <li>Several projects delivered</li>
+            <li>No active projects at present</li>
+            <li>Full list to follow</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Ukraine</h3></div>
+          <ul>
+            <li>Active projects</li>
+            <li>Investment projects: design and process support for an international client entering the market</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Open questions — raised by TEBIN</h2>
+      <div class="cards ">
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Security</h3></div>
+          <ul>
+            <li>Whose access standards apply on joint projects?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Data location</h3></div>
+          <ul>
+            <li>Where does project data live?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Licence overlap</h3></div>
+          <ul>
+            <li>Which software licences overlap across both sides?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Standards ownership</h3></div>
+          <ul>
+            <li>Who owns the standards on a joint project?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>English level</h3></div>
+          <ul>
+            <li>Varies across project staff — improvement planned</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot d-neutral"></div><h3>Polish speakers</h3></div>
+          <ul>
+            <li>None native yet — ambassadors needed</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <p class="footer">
+      Working map for discussion &bull; Built with Archify<span class="no-print"> &bull; Press <kbd>T</kbd> for theme and <kbd>E</kbd> for export</span>
+    </p>
+  </div>
+
+  <script>
+    /* ============================================================
+       Theme toggle — persists to localStorage, respects system pref
+       ============================================================ */
+    var Archify = {};
+
+    Archify.theme = (function () {
+      var STORAGE_KEY = 'archify-theme';
+      var html = document.documentElement;
+      var btn = document.getElementById('btn-theme');
+      var icon = document.getElementById('theme-icon');
+      var label = document.getElementById('theme-label');
+
+      // localStorage can throw (blocked cookies, sandboxed iframes); the whole
+      // script element dies on an uncaught error, so guard every access.
+      function readStored() {
+        try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }
+      }
+      function writeStored(value) {
+        try { localStorage.setItem(STORAGE_KEY, value); } catch (_) {}
+      }
+      function urlOverride() {
+        // URL param wins (useful for deterministic screenshots / share links)
+        try {
+          var param = new URLSearchParams(window.location.search).get('theme');
+          if (param === 'light' || param === 'dark') return param;
+        } catch (_) {}
+        return null;
+      }
+
+      function resolveInitial() {
+        var fromUrl = urlOverride();
+        if (fromUrl) return fromUrl;
+        var saved = readStored();
+        if (saved === 'light' || saved === 'dark') return saved;
+        return 'light';
+      }
+
+      function apply(theme) {
+        html.setAttribute('data-theme', theme);
+        icon.textContent = theme === 'dark' ? '\u263E' : '\u263C';
+        label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+        btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+      }
+
+      function toggle() {
+        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        apply(next);
+        writeStored(next);
+      }
+
+      apply(resolveInitial());
+      btn.addEventListener('click', toggle);
+
+      // Follow live OS theme changes while the user has no explicit preference.
+      try {
+        var media = window.matchMedia('(prefers-color-scheme: light)');
+        var onChange = function (e) {
+          var saved = readStored();
+          if (urlOverride() || saved === 'light' || saved === 'dark') return;
+          return;
+        };
+        if (media.addEventListener) media.addEventListener('change', onChange);
+        else if (media.addListener) media.addListener(onChange);
+      } catch (_) {}
+
+      return { toggle: toggle };
+    })();
+
+    /* ============================================================
+       Export — PNG / JPEG / WebP / SVG (download) and Copy PNG (clipboard)
+
+       Raster exports are always rendered at 4x source resolution for
+       maximum sharpness. The trick: we set the serialized SVG's
+       `width`/`height` to viewBox * 4 so the browser rasterizes the
+       vectors at that resolution natively. drawImage then draws at
+       the image's natural size (no upscaling = no blur).
+
+       JPEG/WebP paint the current theme's background explicitly since
+       those formats have no alpha channel.
+       ============================================================ */
+    (function () {
+      var RASTER_SCALE = 4;
+
+      function diagramFilename() {
+        var title = (document.title || 'diagram')
+          .replace(/\s+Architecture(\s+Diagram)?$/i, '')
+          .replace(/\s+Diagram$/i, '')
+          .trim();
+        return title.replace(/[^a-z0-9_\-]+/gi, '-')
+                    .toLowerCase()
+                    .replace(/^-+|-+$/g, '') || 'diagram';
+      }
+
+      function currentBg() {
+        return getComputedStyle(document.body).backgroundColor || '#ffffff';
+      }
+
+      /**
+       * Serialize the main SVG into a standalone document.
+       *
+       * Two modes:
+       * - Default (opts.autoTheme=false) — locks the serialized SVG to the
+       *   viewer's current theme. Used by the raster pipeline
+       *   (PNG/JPEG/WebP/clipboard) because canvas rasterization needs
+       *   deterministic colors; a raster cannot react to
+       *   prefers-color-scheme after encoding.
+       * - autoTheme=true — emits BOTH dark and light variable sets plus a
+       *   `@media (prefers-color-scheme)` rule so the resulting SVG
+       *   self-themes when embedded in GitHub READMEs or other hosts that
+       *   expose a color scheme. Used for "Download SVG".
+       */
+      function serializeSvg(scale, opts) {
+        // scale: integer multiplier for intrinsic SVG pixel dimensions used by
+        // the raster path. Defaults to 1 (natural size) for SVG download.
+        scale = scale || 1;
+        opts = opts || {};
+        var autoTheme = opts.autoTheme === true;
+
+        var svg = document.querySelector('.diagram-container svg');
+        var clone = svg.cloneNode(true);
+
+        var vb = svg.viewBox.baseVal;
+        // Scale width/height so the browser rasterizes the vectors at target
+        // resolution directly. viewBox stays unchanged so coordinates don't
+        // shift. This is the key to sharp rasters — do NOT scale later via
+        // canvas upscaling.
+        clone.setAttribute('width', vb.width * scale);
+        clone.setAttribute('height', vb.height * scale);
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        // Only the SVG-relevant rules: semantic classes, markers, and the
+        // theme variable blocks. Toolbar/cards/print CSS can never apply
+        // inside a standalone SVG and would only bloat the export.
+        var hostStyle = (function () {
+          var out = [];
+          Array.prototype.forEach.call(document.styleSheets, function (sheet) {
+            var rules;
+            try { rules = sheet.cssRules; } catch (_) { return; } // cross-origin
+            if (!rules) return;
+            Array.prototype.forEach.call(rules, function (rule) {
+              if (rule.type !== 1) return; // plain style rules only
+              var sel = rule.selectorText || '';
+              if (/(^|,)\s*(svg|:root|\[data-theme|\.c-|\.t-|\.a-|\.m-)/.test(sel)) {
+                out.push(rule.cssText);
+              }
+            });
+          });
+          return out.join('\n');
+        })();
+
+        // Derive the variable list from the stylesheet so newly added theme
+        // variables can never be missed by the export pipeline again
+        // (--lane-fill/--lane-stroke once were).
+        var varNames = (function () {
+          var seen = {};
+          var names = [];
+          (hostStyle.match(/--[a-zA-Z0-9-]+(?=\s*:)/g) || []).forEach(function (n) {
+            if (!seen[n]) { seen[n] = true; names.push(n); }
+          });
+          return names;
+        })();
+
+        // Resolve the full variable set for a given data-theme via an
+        // off-DOM probe, independent of what the viewer is currently set to.
+        function resolveVars(themeAttr) {
+          var probe = document.createElement('div');
+          probe.setAttribute('data-theme', themeAttr);
+          probe.style.cssText = 'position:absolute;width:0;height:0;visibility:hidden;';
+          document.body.appendChild(probe);
+          try {
+            var c = getComputedStyle(probe);
+            return varNames.map(function (n) {
+              return n + ': ' + c.getPropertyValue(n).trim() + ';';
+            }).join(' ');
+          } finally {
+            document.body.removeChild(probe);
+          }
+        }
+
+        // Prepend a local()-only @font-face block for each weight so that the
+        // sandboxed image-rendering context used during PNG/JPEG/WebP export
+        // can find JetBrains Mono if the user has it installed locally, and
+        // falls through cleanly to the monospace stack otherwise. The usual
+        // Google-Fonts <link> in the host document is unreachable from the
+        // serialized SVG, so url()-sourced faces would just hang.
+        var fontFallback = [400, 500, 600, 700].map(function (w) {
+          return "@font-face { font-family: 'JetBrains Mono'; font-weight: " + w +
+                 "; src: local('JetBrains Mono'), local('JetBrainsMono-Regular'); }";
+        }).join('\n');
+
+        var style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        var bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('width', '100%');
+        bgRect.setAttribute('height', '100%');
+
+        if (autoTheme) {
+          // Dual-theme SVG. Dark is the default (so hosts without
+          // prefers-color-scheme still render), light swaps in via media
+          // query, and svg[data-theme="..."] still lets downstream
+          // consumers force a specific theme.
+          var darkVars = resolveVars('dark');
+          var lightVars = resolveVars('light');
+
+          style.textContent =
+            fontFallback + "\n" +
+            "svg { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; }\n" +
+            hostStyle + "\n" +
+            ":root, svg { " + darkVars + " }\n" +
+            "@media (prefers-color-scheme: light) { :root, svg { " + lightVars + " } }\n" +
+            "svg[data-theme=\"light\"] { " + lightVars + " }\n" +
+            "svg[data-theme=\"dark\"] { " + darkVars + " }\n" +
+            "rect.c-bg-rect { fill: var(--bg); }\n";
+
+          // Don't lock the serialized SVG to the viewer's current theme.
+          clone.removeAttribute('data-theme');
+          // Background follows the CSS variable, not a fixed color, so it
+          // swaps with the media query.
+          bgRect.setAttribute('class', 'c-bg-rect');
+        } else {
+          // Raster path: lock to the viewer's current theme.
+          var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+          var themeHost = document.querySelector('[data-theme="' + theme + '"]') || document.documentElement;
+          var computed = getComputedStyle(themeHost);
+          var vars = varNames.map(function (n) {
+            return n + ': ' + computed.getPropertyValue(n).trim() + ';';
+          }).join(' ');
+
+          // IMPORTANT: inject the resolved variables AFTER hostStyle,
+          // otherwise hostStyle's ":root, [data-theme=\"dark\"] { ... }" rule
+          // overrides our chosen theme via later-in-cascade equal-specificity.
+          // Keep this order.
+          style.textContent =
+            fontFallback + "\n" +
+            "svg { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; }\n" +
+            hostStyle + "\n" +
+            ":root, svg { " + vars + " }\n";
+
+          bgRect.setAttribute('fill', computed.getPropertyValue('--bg').trim() || '#ffffff');
+        }
+
+        clone.insertBefore(style, clone.firstChild);
+        clone.insertBefore(bgRect, style.nextSibling);
+
+        return {
+          svgString: new XMLSerializer().serializeToString(clone),
+          width: vb.width * scale,
+          height: vb.height * scale
+        };
+      }
+
+      function download(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      }
+
+      // Conservative upper bound on total canvas pixels. Older Safari on iOS
+      // silently produces a blank canvas above ~16 Mpx; Chrome / Firefox /
+      // desktop Safari are far higher but start failing on memory-constrained
+      // devices. We pick the largest integer scale in {4,3,2,1} whose target
+      // pixel count fits under this cap.
+      var MAX_CANVAS_PIXELS = 16 * 1024 * 1024;
+
+      function pickSafeScale(vbW, vbH) {
+        for (var s = RASTER_SCALE; s >= 1; s--) {
+          if (vbW * s * vbH * s <= MAX_CANVAS_PIXELS) return s;
+        }
+        return 1;
+      }
+
+      function rasterize(format) {
+        // Serialize at a safe scale (RASTER_SCALE=4 by default, reduced if the
+        // resulting canvas would exceed MAX_CANVAS_PIXELS). The SVG itself is
+        // rasterized at target resolution natively; drawImage draws at natural
+        // size — no upsampling blur.
+        var svg = document.querySelector('.diagram-container svg');
+        var vb = svg.viewBox.baseVal;
+        var scale = pickSafeScale(vb.width, vb.height);
+        var data = serializeSvg(scale);
+        var svgBlob = new Blob([data.svgString], { type: 'image/svg+xml;charset=utf-8' });
+        var svgUrl = URL.createObjectURL(svgBlob);
+
+        return new Promise(function (resolve, reject) {
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = data.width;
+            canvas.height = data.height;
+            var ctx = canvas.getContext('2d');
+            if (format === 'jpeg') {
+              ctx.fillStyle = currentBg();
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            // Draw at natural size — SVG was already rasterized at target res.
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(svgUrl);
+            var mime = format === 'jpeg' ? 'image/jpeg' :
+                       format === 'webp' ? 'image/webp' : 'image/png';
+            var quality = format === 'png' ? undefined : 0.95;
+            canvas.toBlob(function (blob) {
+              if (!blob) reject(new Error('toBlob returned null for ' + format));
+              else resolve(blob);
+            }, mime, quality);
+          };
+          img.onerror = function (e) {
+            URL.revokeObjectURL(svgUrl);
+            reject(e);
+          };
+          img.src = svgUrl;
+        });
+      }
+
+      var menu = document.getElementById('export-menu');
+      var btn = document.getElementById('btn-export');
+      var items = function () {
+        return Array.prototype.slice.call(menu.querySelectorAll('button[role="menuitem"]'));
+      };
+
+      // ---- Clipboard support ----------------------------------------------
+      function canCopyImage() {
+        return typeof ClipboardItem !== 'undefined' &&
+               navigator.clipboard &&
+               typeof navigator.clipboard.write === 'function';
+      }
+
+      // ---- Raster format detection ----------------------------------------
+      // canvas.toBlob('image/webp') silently returns a PNG on browsers without
+      // WebP encoding (older Safari), so detect explicitly.
+      function supports(format) {
+        if (format === 'svg' || format === 'png') return true;
+        var mime = format === 'jpeg' ? 'image/jpeg' : 'image/webp';
+        try {
+          var c = document.createElement('canvas');
+          c.width = c.height = 2;
+          return c.toDataURL(mime).indexOf('data:' + mime) === 0;
+        } catch (_) { return false; }
+      }
+
+      // Gray out unsupported items.
+      items().forEach(function (it) {
+        if (it.dataset.format && !supports(it.dataset.format)) {
+          it.disabled = true;
+          it.title = 'Not supported by this browser';
+          it.style.opacity = '0.5';
+        }
+        if (it.dataset.action === 'copy' && !canCopyImage()) {
+          it.disabled = true;
+          it.title = 'Clipboard image write not supported by this browser';
+          it.style.opacity = '0.5';
+        }
+      });
+
+      // ---- Toast ----------------------------------------------------------
+      // A live region only announces CHANGES to an existing node, so the toast
+      // element is created once up front and updated in place.
+      var toastEl = document.createElement('div');
+      toastEl.className = 'archify-toast';
+      toastEl.setAttribute('role', 'status');
+      document.body.appendChild(toastEl);
+      var toastTimer = null;
+
+      function toast(msg) {
+        toastEl.textContent = '';
+        requestAnimationFrame(function () {
+          toastEl.textContent = msg;
+          toastEl.classList.add('show');
+        });
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1500);
+      }
+
+      function open(focusLast) {
+        menu.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        var available = items().filter(function (i) { return !i.disabled; });
+        var target = focusLast ? available[available.length - 1] : available[0];
+        if (target) target.focus();
+      }
+      function close(focusTrigger) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (focusTrigger) btn.focus();
+      }
+      function isOpen() { return menu.classList.contains('open'); }
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (isOpen()) close(false);
+        else open();
+      });
+      // APG menu-button pattern: ArrowDown/ArrowUp on the trigger opens the menu.
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!isOpen()) open(e.key === 'ArrowUp');
+        }
+      });
+      document.addEventListener('click', function (e) {
+        if (!menu.contains(e.target) && e.target !== btn) close(false);
+      });
+
+      // Keyboard navigation inside the menu.
+      //   Menu items: Up/Down, Home/End.
+      //   Esc closes + returns focus to trigger; Tab closes.
+      menu.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { e.preventDefault(); close(true); return; }
+        if (e.key === 'Tab')    { close(false); return; }
+
+        var available = items().filter(function (i) { return !i.disabled; });
+        var current = available.indexOf(document.activeElement);
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (available.length) available[(current + 1 + available.length) % available.length].focus();
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (available.length) available[(current - 1 + available.length) % available.length].focus();
+            break;
+          case 'Home':
+            e.preventDefault();
+            if (available[0]) available[0].focus();
+            break;
+          case 'End':
+            e.preventDefault();
+            if (available.length) available[available.length - 1].focus();
+            break;
+        }
+      });
+
+      function runExport(format) {
+        var base = diagramFilename();
+        close(true);
+        return (format === 'svg'
+          ? Promise.resolve(serializeSvg(1, { autoTheme: true })).then(function (d) {
+              download(new Blob([d.svgString], { type: 'image/svg+xml;charset=utf-8' }), base + '.svg');
+            })
+          : rasterize(format).then(function (blob) {
+              download(blob, base + '.' + format);
+            })
+        ).catch(function (err) {
+          console.error(err);
+          alert('Export failed: ' + (err && err.message ? err.message : format));
+        });
+      }
+
+      function runCopy() {
+        close(true);
+        if (!canCopyImage()) {
+          alert('Clipboard image write not supported in this browser.');
+          return;
+        }
+        // WebKit requires ClipboardItem to be constructed synchronously inside
+        // the user gesture — pass the pending Promise<Blob> as the item value.
+        // Browsers that reject promise values throw synchronously; fall back
+        // to awaiting the blob first (works in Chromium/Firefox).
+        var blobPromise = rasterize('png');
+        var writePromise;
+        try {
+          writePromise = navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })]);
+        } catch (_) {
+          writePromise = blobPromise.then(function (blob) {
+            return navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          });
+        }
+        return writePromise.then(function () {
+          toast('Copied PNG to clipboard');
+        }).catch(function (err) {
+          console.error(err);
+          alert('Copy failed: ' + (err && err.message ? err.message : 'unknown'));
+        });
+      }
+
+      menu.addEventListener('click', function (e) {
+        var copyBtn = e.target.closest('button[data-action="copy"]');
+        if (copyBtn && !copyBtn.disabled) { runCopy(); return; }
+
+        var formatBtn = e.target.closest('button[data-format]');
+        if (formatBtn && !formatBtn.disabled) { runExport(formatBtn.dataset.format); }
+      });
+
+      Archify.exportMenu = { open: open, close: close, isOpen: isOpen, run: runExport };
+
+      // Auto-open on page load for demo/screenshot purposes: ?openExport=1
+      // Wait for fonts (so the menu doesn't flash before typography lands)
+      // and paint before opening. Fallback timeout for browsers without the
+      // Font Loading API.
+      try {
+        if (new URLSearchParams(window.location.search).get('openExport') === '1') {
+          var openWhenReady = function () {
+            requestAnimationFrame(function () { requestAnimationFrame(open); });
+          };
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(openWhenReady);
+          } else {
+            setTimeout(openWhenReady, 200);
+          }
+        }
+      } catch (_) {}
+    })();
+
+    /* ============================================================
+       Global keyboard shortcuts
+         T -> toggle theme
+         E -> open export menu
+       Ignored when focus is inside an input/textarea/contenteditable.
+       ============================================================ */
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        Archify.theme.toggle();
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        if (!Archify.exportMenu.isOpen()) Archify.exportMenu.open();
+      }
+    });
+  </script>
+</body>
+</html>

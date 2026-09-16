@@ -1,0 +1,761 @@
+{
+	"nodes": [
+		{
+			"id": "title",
+			"type": "text",
+			"x": 0,
+			"y": 0,
+			"width": 1520,
+			"height": 240,
+			"text": "# TEBIN · Haskoning\n## One network — working map\nWhat each side has · what each side wants · where the network touches · how a joint operating model can look"
+		},
+		{
+			"id": "legend",
+			"type": "group",
+			"x": 1600,
+			"y": 0,
+			"width": 800,
+			"height": 240,
+			"label": "Five flows — one colour each"
+		},
+		{
+			"id": "legend-leads",
+			"type": "text",
+			"x": 1610,
+			"y": 50,
+			"width": 150,
+			"height": 170,
+			"text": "**Leads**\nproject opportunities",
+			"color": "#2563EB"
+		},
+		{
+			"id": "legend-people",
+			"type": "text",
+			"x": 1768,
+			"y": 50,
+			"width": 150,
+			"height": 170,
+			"text": "**People & competencies**",
+			"color": "#D97706"
+		},
+		{
+			"id": "legend-standards",
+			"type": "text",
+			"x": 1926,
+			"y": 50,
+			"width": 150,
+			"height": 170,
+			"text": "**Standards & certification**",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "legend-local",
+			"type": "text",
+			"x": 2084,
+			"y": 50,
+			"width": 150,
+			"height": 170,
+			"text": "**Local engineering experience**",
+			"color": "#059669"
+		},
+		{
+			"id": "legend-training",
+			"type": "text",
+			"x": 2242,
+			"y": 50,
+			"width": 150,
+			"height": 170,
+			"text": "**Training & know-how**",
+			"color": "#DB2777"
+		},
+		{
+			"id": "g-tebin",
+			"type": "group",
+			"x": 0,
+			"y": 320,
+			"width": 900,
+			"height": 920,
+			"label": "TEBIN"
+		},
+		{
+			"id": "g-hask",
+			"type": "group",
+			"x": 1500,
+			"y": 320,
+			"width": 900,
+			"height": 920,
+			"label": "Haskoning group"
+		},
+		{
+			"id": "t-core",
+			"type": "text",
+			"x": 40,
+			"y": 400,
+			"width": 400,
+			"height": 810,
+			"text": "### TEBIN\nAbout 70 people\nEngineering strength in MEP\nBIM coordination and CDE at an advanced level\n\nLegal entities in Ukraine and Poland\n\nISO 9001 · ISO 19650\nISO 27001 in preparation"
+		},
+		{
+			"id": "t-ua",
+			"type": "text",
+			"x": 480,
+			"y": 400,
+			"width": 380,
+			"height": 180,
+			"text": "### Ukraine\nEngineering base · legal entity\nLocal signing authority\nActive projects"
+		},
+		{
+			"id": "t-pl",
+			"type": "text",
+			"x": 480,
+			"y": 610,
+			"width": 380,
+			"height": 180,
+			"text": "### Poland\nLegal entity · team of 15–20, built out through year end\nNo active Polish projects yet"
+		},
+		{
+			"id": "t-de",
+			"type": "text",
+			"x": 480,
+			"y": 820,
+			"width": 380,
+			"height": 180,
+			"text": "### Germany\nMain delivery market — active"
+		},
+		{
+			"id": "t-ch",
+			"type": "text",
+			"x": 480,
+			"y": 1030,
+			"width": 380,
+			"height": 180,
+			"text": "### Switzerland\nDirect access to Swiss contractors"
+		},
+		{
+			"id": "h-nl",
+			"type": "text",
+			"x": 1540,
+			"y": 400,
+			"width": 380,
+			"height": 180,
+			"text": "### Netherlands\nGroup centre"
+		},
+		{
+			"id": "h-pl",
+			"type": "text",
+			"x": 1540,
+			"y": 610,
+			"width": 380,
+			"height": 180,
+			"text": "### Poland\nLocal subsidiary"
+		},
+		{
+			"id": "h-de",
+			"type": "text",
+			"x": 1540,
+			"y": 820,
+			"width": 380,
+			"height": 180,
+			"text": "### Germany\nGroup presence"
+		},
+		{
+			"id": "h-ch",
+			"type": "text",
+			"x": 1540,
+			"y": 1030,
+			"width": 380,
+			"height": 180,
+			"text": "### Switzerland\nSubsidiary"
+		},
+		{
+			"id": "h-core",
+			"type": "text",
+			"x": 1960,
+			"y": 400,
+			"width": 400,
+			"height": 810,
+			"text": "### Haskoning\nDutch group\nSubsidiaries in several countries\n\n+ further subsidiaries — add in the room"
+		},
+		{
+			"id": "g-cert",
+			"type": "group",
+			"x": 0,
+			"y": 1320,
+			"width": 2400,
+			"height": 360,
+			"label": "Local certification model",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "cert-line",
+			"type": "text",
+			"x": 40,
+			"y": 1390,
+			"width": 2320,
+			"height": 100,
+			"text": "### TEBIN prepares the work  →  the local entity signs and carries the responsibility",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "cert-ua",
+			"type": "text",
+			"x": 40,
+			"y": 1530,
+			"width": 440,
+			"height": 120,
+			"text": "**Ukraine**\nTEBIN signs · partner brings scale and methodology",
+			"color": "#059669"
+		},
+		{
+			"id": "cert-de",
+			"type": "text",
+			"x": 510,
+			"y": 1530,
+			"width": 440,
+			"height": 120,
+			"text": "**Germany**\nLocal party signs"
+		},
+		{
+			"id": "cert-pl",
+			"type": "text",
+			"x": 980,
+			"y": 1530,
+			"width": 440,
+			"height": 120,
+			"text": "**Poland**\nLocal party signs"
+		},
+		{
+			"id": "cert-ch",
+			"type": "text",
+			"x": 1450,
+			"y": 1530,
+			"width": 440,
+			"height": 120,
+			"text": "**Switzerland**\nLocal party signs"
+		},
+		{
+			"id": "cert-other",
+			"type": "text",
+			"x": 1920,
+			"y": 1530,
+			"width": 440,
+			"height": 120,
+			"text": "**Other markets**\nLocal party signs"
+		},
+		{
+			"id": "flows-head",
+			"type": "text",
+			"x": 0,
+			"y": 1760,
+			"width": 2400,
+			"height": 80,
+			"text": "## What moves across the network"
+		},
+		{
+			"id": "col-tebin",
+			"type": "text",
+			"x": 0,
+			"y": 1860,
+			"width": 900,
+			"height": 60,
+			"text": "### From TEBIN"
+		},
+		{
+			"id": "col-hask",
+			"type": "text",
+			"x": 1500,
+			"y": 1860,
+			"width": 900,
+			"height": 60,
+			"text": "### From Haskoning"
+		},
+		{
+			"id": "f-leads-t",
+			"type": "text",
+			"x": 0,
+			"y": 1950,
+			"width": 900,
+			"height": 200,
+			"text": "- Germany — an active main market\n- Direct access to Swiss contractors\n- Working relationships in the Ukrainian market",
+			"color": "#2563EB"
+		},
+		{
+			"id": "f-leads-h",
+			"type": "text",
+			"x": 1500,
+			"y": 1950,
+			"width": 900,
+			"height": 200,
+			"text": "- Shared leads across the group's subsidiaries\n- Polish project opportunities for joint entry",
+			"color": "#2563EB"
+		},
+		{
+			"id": "f-people-t",
+			"type": "text",
+			"x": 0,
+			"y": 2180,
+			"width": 900,
+			"height": 200,
+			"text": "- MEP discipline leads and project managers who can lead a discipline — one of Haskoning's stated needs\n- Advanced BIM coordinators\n- Full-time allocation to projects, not fragmented involvement",
+			"color": "#D97706"
+		},
+		{
+			"id": "f-people-h",
+			"type": "text",
+			"x": 1500,
+			"y": 2180,
+			"width": 900,
+			"height": 200,
+			"text": "- Senior people who mentor TEBIN teams\n- + add in the room",
+			"color": "#D97706"
+		},
+		{
+			"id": "f-standards-t",
+			"type": "text",
+			"x": 0,
+			"y": 2410,
+			"width": 900,
+			"height": 200,
+			"text": "- Local signing authority in Ukraine\n- ISO 9001 · ISO 19650 certified\n- ISO 27001 in preparation",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "f-standards-h",
+			"type": "text",
+			"x": 1500,
+			"y": 2410,
+			"width": 900,
+			"height": 200,
+			"text": "- Local brand and signature in Poland, Germany, Switzerland\n- Quality frameworks",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "f-local-t",
+			"type": "text",
+			"x": 0,
+			"y": 2640,
+			"width": 900,
+			"height": 200,
+			"text": "- Ukrainian market, norms and client relations\n- Design and supporting processes for an international client entering Ukraine\n- German delivery across HOAI LP3–LP5",
+			"color": "#059669"
+		},
+		{
+			"id": "f-local-h",
+			"type": "text",
+			"x": 1500,
+			"y": 2640,
+			"width": 900,
+			"height": 200,
+			"text": "- Polish market, norms and client relations\n- + other subsidiary markets — add in the room",
+			"color": "#059669"
+		},
+		{
+			"id": "f-training-t",
+			"type": "text",
+			"x": 0,
+			"y": 2870,
+			"width": 900,
+			"height": 200,
+			"text": "- Agile and Scrum in practice · short adoption cycle for new IT frameworks\n- Revit automation — scripts, plugins, family production as internal support tools\n- MEP calculation incl. LiNear · Digital Twin · as-built laser scanning",
+			"color": "#DB2777"
+		},
+		{
+			"id": "f-training-h",
+			"type": "text",
+			"x": 1500,
+			"y": 2870,
+			"width": 900,
+			"height": 200,
+			"text": "- Training material and methodology\n- Established corporate processes",
+			"color": "#DB2777"
+		},
+		{
+			"id": "want-tebin",
+			"type": "text",
+			"x": 0,
+			"y": 3150,
+			"width": 1150,
+			"height": 320,
+			"text": "## TEBIN is looking for\n- **Joint entry into Polish work** with the Polish subsidiary or its partners — TEBIN delivers, the local side carries brand and signature\n- Training material and methodology\n- Process maturity\n- Mentoring from senior people\n- Shared leads across subsidiaries"
+		},
+		{
+			"id": "want-hask",
+			"type": "text",
+			"x": 1250,
+			"y": 3150,
+			"width": 1150,
+			"height": 320,
+			"text": "## Haskoning is looking for\n- Discipline lead roles on projects\n- + add in the room\n- + add in the room\n- + add in the room"
+		},
+		{
+			"id": "g-model",
+			"type": "group",
+			"x": 0,
+			"y": 3550,
+			"width": 2400,
+			"height": 960,
+			"label": "How a joint operating model can look"
+		},
+		{
+			"id": "m-embedded",
+			"type": "text",
+			"x": 40,
+			"y": 3630,
+			"width": 1000,
+			"height": 200,
+			"text": "### Embedded in the client team\nSeveral German cases today — close to how group subsidiaries already work together"
+		},
+		{
+			"id": "m-ownership",
+			"type": "text",
+			"x": 1360,
+			"y": 3630,
+			"width": 1000,
+			"height": 200,
+			"text": "### Discipline ownership\nFull responsibility for a discipline package"
+		},
+		{
+			"id": "p-competencies",
+			"type": "text",
+			"x": 40,
+			"y": 3870,
+			"width": 560,
+			"height": 300,
+			"text": "### Competencies\nDisciplines · seniority · languages\nRoles and counts from the competency matrix",
+			"color": "#D97706"
+		},
+		{
+			"id": "p-development",
+			"type": "text",
+			"x": 630,
+			"y": 3870,
+			"width": 560,
+			"height": 300,
+			"text": "### Development\nInbound: learning material, methodology, mentoring from senior people",
+			"color": "#DB2777"
+		},
+		{
+			"id": "p-mobility",
+			"type": "text",
+			"x": 1220,
+			"y": 3870,
+			"width": 560,
+			"height": 300,
+			"text": "### Mobility & certification\nWho can work formally in which market\nDecides which leads can actually be taken",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "p-language",
+			"type": "text",
+			"x": 1810,
+			"y": 3870,
+			"width": 550,
+			"height": 300,
+			"text": "### Language\nEnglish across project staff — level varies, room to improve\nNo native Polish speakers · hiring in Poland within a year\n### Cooperation\nExchange of experience, training, full-time allocation — not rotation between offices"
+		},
+		{
+			"id": "m-it",
+			"type": "text",
+			"x": 40,
+			"y": 4210,
+			"width": 1140,
+			"height": 260,
+			"text": "### IT & security\n- No local servers: Microsoft 365 and Azure\n- Cloudflare at the edge · Zero Trust — access by identity, not network location\n- Works inside a partner's access standards and adapts the tooling\n- Tailscale mesh for distributed teams — under consideration\n- ISO 27001 in preparation"
+		},
+		{
+			"id": "m-roadmap",
+			"type": "text",
+			"x": 1220,
+			"y": 4210,
+			"width": 1140,
+			"height": 260,
+			"text": "### Digital roadmap\n- MCP servers for Revit and CAD applications\n- Validators for document workflow and issued drawing packages\n- ISO 19650 validation · ISO 9001 quality control"
+		},
+		{
+			"id": "g-track",
+			"type": "group",
+			"x": 0,
+			"y": 4590,
+			"width": 2400,
+			"height": 420,
+			"label": "Track record — TEBIN's own portfolio"
+		},
+		{
+			"id": "r-dc",
+			"type": "text",
+			"x": 40,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### Data centres\nDelivered: Africa, Netherlands\nIn progress: Germany, Switzerland"
+		},
+		{
+			"id": "r-de",
+			"type": "text",
+			"x": 431,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### Germany\n- Residential portfolio, delivered independently\n- Standby and uninterruptible power incl. diesel generation — ongoing\n- DIS, HOAI LP3–LP5\n- Reconstruction"
+		},
+		{
+			"id": "r-scan",
+			"type": "text",
+			"x": 822,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### As-built & scanning\n- Laser scanning with a Polish partner\n- Current: Amazon facility, Rostock\n- For operating assets: reconstruction, document recovery"
+		},
+		{
+			"id": "r-ch",
+			"type": "text",
+			"x": 1213,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### Switzerland\n- HVAC modernisation for an MSD contractor\n- Digital Twin for MEP"
+		},
+		{
+			"id": "r-pl",
+			"type": "text",
+			"x": 1604,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### Poland\n- Several projects delivered\n- No active projects at present\n- Full list to follow"
+		},
+		{
+			"id": "r-ua",
+			"type": "text",
+			"x": 1995,
+			"y": 4670,
+			"width": 363,
+			"height": 310,
+			"text": "### Ukraine\n- Active projects\n- Investment projects: design and process support for an international client entering the market"
+		},
+		{
+			"id": "g-open",
+			"type": "group",
+			"x": 0,
+			"y": 5090,
+			"width": 2400,
+			"height": 300,
+			"label": "Open questions — on the board because TEBIN raised them",
+			"color": "3"
+		},
+		{
+			"id": "q-security",
+			"type": "text",
+			"x": 40,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### Security\nWhose access standards apply on joint projects?"
+		},
+		{
+			"id": "q-data",
+			"type": "text",
+			"x": 431,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### Data location\nWhere does project data live?"
+		},
+		{
+			"id": "q-licences",
+			"type": "text",
+			"x": 822,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### Licence overlap\nWhich software licences overlap across both sides?"
+		},
+		{
+			"id": "q-standards",
+			"type": "text",
+			"x": 1213,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### Standards ownership\nWho owns the standards on a joint project?"
+		},
+		{
+			"id": "q-english",
+			"type": "text",
+			"x": 1604,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### English level\nVaries across project staff — improvement planned"
+		},
+		{
+			"id": "q-polish",
+			"type": "text",
+			"x": 1995,
+			"y": 5170,
+			"width": 363,
+			"height": 190,
+			"text": "### Polish speakers\nNone native yet — ambassadors needed"
+		},
+		{
+			"id": "g-parking",
+			"type": "group",
+			"x": 2600,
+			"y": 0,
+			"width": 760,
+			"height": 1380,
+			"label": "OFF THE BOARD — check before anything moves left",
+			"color": "1"
+		},
+		{
+			"id": "x-confirm",
+			"type": "text",
+			"x": 2640,
+			"y": 60,
+			"width": 680,
+			"height": 420,
+			"text": "### [confirm] items from the brief — kept off\n- Germany standby power partner: \"Guilder\"?\n- Rostock scanning partner: \"Cadgima\"?\n- Client of the Swiss Digital Twin for MEP\n- Polish projects, incl. Michelin — and the full list\n- Further countries for the network map"
+		},
+		{
+			"id": "x-held",
+			"type": "text",
+			"x": 2640,
+			"y": 510,
+			"width": 680,
+			"height": 380,
+			"text": "### Held back — needs a decision\n- Ukraine: \"supporting the country rather than margin\" touches both the margin rule and the war-narrative rule\n- The brief names only the topics under Open questions; the question wording on those cards is a draft"
+		},
+		{
+			"id": "x-rules",
+			"type": "text",
+			"x": 2640,
+			"y": 920,
+			"width": 680,
+			"height": 430,
+			"text": "### Never on the board\n- Rates, margins, pricing\n- Headcount economics\n- Individual names — including TEBIN's own relationship owners — until further notice\n- Any claim of independence in words\n- The war as narrative — structural fact only\n\n**Session open:** format (live drawing or presented) · participants · length"
+		}
+	],
+	"edges": [
+		{
+			"id": "e-ua-nl",
+			"fromNode": "t-ua",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "h-nl",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "Ukrainian signature & market ⇄ scale & methodology",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "e-pl-pl",
+			"fromNode": "t-pl",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "h-pl",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "Joint entry into Polish work: TEBIN delivers ⇄ local brand & signature",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "e-de-de",
+			"fromNode": "t-de",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "h-de",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "German delivery capacity ⇄ shared leads",
+			"color": "#2563EB"
+		},
+		{
+			"id": "e-ch-ch",
+			"fromNode": "t-ch",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "h-ch",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "Swiss contractor access ⇄ shared leads",
+			"color": "#2563EB"
+		},
+		{
+			"id": "e-f-leads",
+			"fromNode": "f-leads-t",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "f-leads-h",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "project opportunities, both ways",
+			"color": "#2563EB"
+		},
+		{
+			"id": "e-f-people",
+			"fromNode": "f-people-t",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "f-people-h",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "MEP discipline leads ⇄ senior mentors",
+			"color": "#D97706"
+		},
+		{
+			"id": "e-f-standards",
+			"fromNode": "f-standards-t",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "f-standards-h",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "Ukrainian signature ⇄ local signature in EU markets",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "e-f-local",
+			"fromNode": "f-local-t",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "f-local-h",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "Ukraine entry know-how ⇄ Polish market access",
+			"color": "#059669"
+		},
+		{
+			"id": "e-f-training",
+			"fromNode": "f-training-t",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "f-training-h",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "short adoption cycle ⇄ process maturity",
+			"color": "#DB2777"
+		},
+		{
+			"id": "e-model",
+			"fromNode": "m-embedded",
+			"fromSide": "right",
+			"toNode": "m-ownership",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "direction of travel · depends on local signature",
+			"color": "#7C3AED"
+		},
+		{
+			"id": "e-roadmap",
+			"fromNode": "m-it",
+			"fromSide": "right",
+			"fromEnd": "arrow",
+			"toNode": "m-roadmap",
+			"toSide": "left",
+			"toEnd": "arrow",
+			"label": "short adoption cycle ⇄ corporate maturity",
+			"color": "#DB2777"
+		}
+	]
+}
