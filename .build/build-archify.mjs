@@ -17,7 +17,8 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const L = 40, R = 700, W = 360;          // left (TEBIN) and right (Haskoning) columns
 const CX = 550;                          // centre line between the two contours
 const NET_Y = (i) => 90 + i * 92, NET_H = 72;
-const FLOW_Y = (i) => 600 + i * 96, FLOW_H = 76;
+const SECTOR_Y = 590, SECTOR_H = 72;
+const FLOW_Y = (i) => 722 + i * 96, FLOW_H = 76;
 const TEBIN = 'cloud', HASK = 'security', NEUTRAL = 'external'; // renderer types, recoloured below
 
 const components = [];
@@ -47,6 +48,13 @@ link('t-pl', 'h-pl', 'TEBIN delivers ⇄ local brand & signature', 'standards');
 link('t-de', 'h-de', 'German delivery capacity ⇄ shared leads', 'leads');
 link('t-ch', 'h-ch', 'Swiss contractor access ⇄ shared leads', 'leads');
 
+// Sectors — both sides active in the same three
+[
+  ['mcf', 'MCF'],
+  ['ib', 'Industry and Buildings'],
+  ['av', 'Aviation'],
+].forEach(([k, label], i) => comp(`sector-${k}`, NEUTRAL, L + i * 340, SECTOR_Y, 320, SECTOR_H, label, 'TEBIN · Haskoning — both active'));
+
 // Five flows, mirrored
 const flows = [
   ['leads', 'project opportunities, both ways',
@@ -72,14 +80,14 @@ flows.forEach(([key, label, t, h], i) => {
 });
 
 // Local certification model
-comp('cert-line', NEUTRAL, L, 1140, 1020, 56, 'TEBIN prepares the work → the local entity signs and carries the responsibility');
+comp('cert-line', NEUTRAL, L, 1262, 1020, 56, 'TEBIN prepares the work → the local entity signs and carries the responsibility');
 [
   ['ua', TEBIN, 'Ukraine', 'TEBIN signs', 'partner brings scale & methodology'],
   ['de', NEUTRAL, 'Germany', 'local party signs', 'TEBIN prepares the work'],
   ['pl', NEUTRAL, 'Poland', 'local party signs', 'TEBIN prepares the work'],
   ['ch', NEUTRAL, 'Switzerland', 'local party signs', 'TEBIN prepares the work'],
   ['other', NEUTRAL, 'Other markets', 'local party signs', 'TEBIN prepares the work'],
-].forEach(([k, type, label, sub, tag], i) => comp(`cert-${k}`, type, L + i * 210, 1226, 190, 72, label, sub, tag));
+].forEach(([k, type, label, sub, tag], i) => comp(`cert-${k}`, type, L + i * 210, 1348, 190, 72, label, sub, tag));
 
 const arch = {
   schema_version: 1,
@@ -251,8 +259,9 @@ const heading = (y, text, note) => `        <text x="${CX}" y="${y}" class="t-se
   (note ? `\n        <text x="${CX}" y="${y + 17}" class="t-section-note" font-size="10" text-anchor="middle">${esc(note)}</text>` : '');
 sub(/        <!-- Legend -->[\s\S]*?      <\/svg>/, () => `        <!-- Section headings -->
 ${heading(122, 'Where the network touches')}
-${heading(566, 'What moves across the network')}
-${heading(1110, 'Local certification model', 'one line through every market')}
+${heading(556, 'Sectors — both sides active')}
+${heading(688, 'What moves across the network')}
+${heading(1232, 'Local certification model', 'one line through every market')}
 
         <!-- Legend -->
 ${legend.join('\n')}
